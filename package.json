@@ -12,6 +12,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
     "axios": "^1.6.2",
     "element-plus": "^2.4.3",
     "pinia": "^2.1.7",
@@ -29,6 +30,7 @@
     "eslint": "^8.49.0",
     "eslint-plugin-vue": "^9.17.0",
     "npm-run-all2": "^6.1.1",
+    "sass": "^1.69.5",
     "typescript": "~5.2.0",
     "unplugin-auto-import": "^0.17.2",
     "unplugin-vue-components": "^0.26.0",
