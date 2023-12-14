@@ -27,7 +27,7 @@ export default defineConfig({
     // 配置反向代理
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8082',
+        target: 'http://127.0.0.1:4523/m1/3627295-0-default/',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }

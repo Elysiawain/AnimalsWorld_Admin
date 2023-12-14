@@ -7,7 +7,7 @@ import { useRouter } from 'vue-router'
 const adminInfo = ref<any>({})
 const router = useRouter()
 // 退出登录
-const logOut = ():void => {
+const logOut = () => {
     // TODO 清除token
     router.replace('/login')
 }
@@ -35,7 +35,7 @@ const logOut = ():void => {
                              />
                         <template #dropdown>
                             <el-dropdown-item @click="logOut">退出登录</el-dropdown-item>
-                            <el-dropdown-item >个人中心</el-dropdown-item>
+                            <el-dropdown-item @click="$router.push('/center')">个人中心</el-dropdown-item>
                         </template>
                     </el-dropdown>
 
