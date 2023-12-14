@@ -1,7 +1,7 @@
 // fade
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.28s;
+  transition: opacity .28s;
 }
 
 .fade-enter,
@@ -10,17 +10,17 @@
 }
 
 // fade-transform
-.fade-transform-leave-active,
-.fade-transform-enter-active {
-  transition: all .5s;
+.fade-leave-active,
+.fade-enter-active {
+  transition: all .5s linear;
 }
 
-.fade-transform-enter {
+.fade-enter {
   opacity: 0;
   transform: translateX(-30px);
 }
 
-.fade-transform-leave-to {
+.fade-leave-to {
   opacity: 0;
   transform: translateX(30px);
 }

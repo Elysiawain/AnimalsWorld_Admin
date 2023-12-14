@@ -1,4 +1,16 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+
+// 获取当前登录信息
+const adminInfo = ref<any>({})
+const router = useRouter()
+// 退出登录
+const logOut = ():void => {
+    // TODO 清除token
+    router.replace('/login')
+}
 </script>
 
 <template>
@@ -6,7 +18,7 @@
         <el-container>
             <el-aside width="200px">
                 <!-- 侧边栏 -->
-                <div class="logo">Logo</div>
+                <div class="logo"></div>
                 <div class="aside-nav">
                     <router-link class="an_route" to="/home">首页</router-link>
                     <router-link class="an_route" to="/animals">动物数据</router-link>
@@ -15,14 +27,33 @@
                 </div>
             </el-aside>
             <el-container>
-                <el-header>Header</el-header>
-                <el-main>
-                    <transition name="fade">
-                        <router-view></router-view>
-                    </transition>
+                <el-header>
+                    <div>管理员：Admin</div>
+                    <el-dropdown>
+                        <el-avatar :size="60"
+                            :src="adminInfo.avatar || 'https://javaweb-twj.oss-cn-beijing.aliyuncs.com/elysiaHead.jpg'"
+                             />
+                        <template #dropdown>
+                            <el-dropdown-item @click="logOut">退出登录</el-dropdown-item>
+                            <el-dropdown-item >个人中心</el-dropdown-item>
+                        </template>
+                    </el-dropdown>
 
+                </el-header>
+                <el-main>
+                    <router-view v-slot="{ Component }">
+                        <transition name="fade" mode="out-in" appear>
+                            <keep-alive>
+                                <component :is="Component" />
+                            </keep-alive>
+                        </transition>
+                    </router-view>
                 </el-main>
-                <el-footer>Footer</el-footer>
+                <el-footer>
+                    <p>CreateBy：elysia</p>
+                    <p>联系方式：3215624200@qq.com</p>
+                    <p>版权所属：© 2023 爱莉希雅天下第一！</p>
+                </el-footer>
             </el-container>
         </el-container>
     </div>
@@ -31,28 +62,59 @@
 
 <style scoped lang="scss">
 .common-layout {
-    height: 100vh;
     display: flex;
-    background-color: $bgcColor;
+    height: 100vh;
+    background-color: #fff;
 
     .el-header {
-        background-color: #B3C0D1;
+        flex: .8;
+        display: flex;
+        align-items: center;
+        background-color: $bgcColor;
         color: #333;
+        font-size: 18px;
+        justify-content: end;
+
+        .el-avatar {
+            margin: 20px;
+        }
+        img {
+            border: none;
+        }
+        .example-showcase{
+            cursor: pointer;
+            color: var(--el-color-primary);
+            display: flex;
+            align-items: center;
+        }
     }
 
     .el-footer {
-        background-color: #B3C0D1;
-        color: #333;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: $footerBgcColor;
+        color: $fontColor;
+    }
+
+    .el-main {
+        flex: 6
     }
 
     .el-aside {
-        background-color: #D3DCE6;
+        background-color: $navBgcColor;
         color: #333;
         text-align: center;
 
         .logo {
             width: 100%;
-            height: 50px;
+            height: 95px;
+            background-image: url("@/assets/logo.png");
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            background-position: center;
         }
 
         .aside-nav {
@@ -67,11 +129,12 @@
                 width: 100%;
                 height: 80px;
                 line-height: 80px;
-                color: $fontColor;
+                color: $asideFontColor;
                 transition: all .2s linear;
 
                 &:hover {
-                    color: $titleFontColor;
+                    color: #fff;
+                    background-color: $titleFontColor;
                 }
 
             }
