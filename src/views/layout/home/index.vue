@@ -1,5 +1,14 @@
 <script setup lang="ts">
-
+import { ref, onMounted } from 'vue';
+import { getAdminListApi } from '@/api/Admin';
+const adminList = ref<any[]>([]);
+const getAdminList = async () => {
+    const res = await getAdminListApi();
+    adminList.value = res.data;
+};
+onMounted(() => {
+    getAdminList()
+})
 </script>
 
 <template>

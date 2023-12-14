@@ -3,13 +3,15 @@ import { reactive, ref } from 'vue'
 import { type FormInstance, type FormRules, ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { getAdminApi } from '@/api/Admin'
+import{useAdminStore}from '@/stores/admin'
 const router = useRouter()
 const ruleFormRef = ref<FormInstance>()
-
+const adminStore = useAdminStore()
 const adminLogin = async () => {
-    const res = await getAdminApi(ruleForm.admin, ruleForm.pass)
-    console.log(res)
-
+    const {data:{data}} = await getAdminApi(ruleForm.admin, ruleForm.pass)
+    console.log(data) 
+    // 本地持久化
+    adminStore.setAdminInfo(data)
 }
 const validatePass = (rule: any, value: any, callback: any) => {
     // 判断输入的值是否为空

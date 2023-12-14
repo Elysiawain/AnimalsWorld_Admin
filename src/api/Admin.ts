@@ -10,3 +10,9 @@ export const getAdminApi = (adminName: string, password: string) => {
         }
     })
 }
+export const getAdminListApi = () => {
+    return request({
+        url: '/admin',
+        method: 'get'
+    })
+}
