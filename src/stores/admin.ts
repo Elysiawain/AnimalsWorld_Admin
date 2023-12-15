@@ -4,7 +4,7 @@ import { defineStore } from 'pinia'
 
 export const useAdminStore = defineStore('admin', () => {
     const admin = ref<any>({})
-    const token=ref<string>('')
+    const token=ref<string>(localStorage.getItem('token')||'')
     const getAdminInfo = ():Object => {
         admin.value = JSON.parse(localStorage.getItem('adminInfo')||'{}') 
         return admin.value

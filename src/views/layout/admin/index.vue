@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import {ref} from 'vue'
+import { ref } from 'vue'
+const adminList = ref([])
 </script>
 
 <template>
-<div>
-    展示管理员数据路由
-</div>
+        <div>
+            <div v-if="adminList.length> 1">
+                动物数据二级路由
+            </div>
+            <el-empty description="这里什么也没有哟~" v-else />
+        </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
