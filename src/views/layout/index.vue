@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-
+import { useAdminStore } from '@/stores/admin'
 
 // 获取当前登录信息
-const adminInfo = ref<any>({})
+const adminStore = useAdminStore()
+adminStore.getAdminInfo()
+
 const router = useRouter()
 // 退出登录
 const logOut = () => {
     // TODO 清除token
+    adminStore.clearAdminInfo()
     router.replace('/login')
 }
 </script>
@@ -28,11 +31,10 @@ const logOut = () => {
             </el-aside>
             <el-container>
                 <el-header>
-                    <div>管理员：Admin</div>
+                    <div>管理员：{{ adminStore?.admin.nickname }}</div>
                     <el-dropdown>
                         <el-avatar :size="60"
-                            :src="adminInfo.avatar || 'https://javaweb-twj.oss-cn-beijing.aliyuncs.com/elysiaHead.jpg'"
-                             />
+                            :src="adminStore?.admin.avatar || 'https://javaweb-twj.oss-cn-beijing.aliyuncs.com/elysiaHead.jpg'" />
                         <template #dropdown>
                             <el-dropdown-item @click="logOut">退出登录</el-dropdown-item>
                             <el-dropdown-item @click="$router.push('/center')">个人中心</el-dropdown-item>
@@ -78,10 +80,12 @@ const logOut = () => {
         .el-avatar {
             margin: 20px;
         }
+
         img {
             border: none;
         }
-        .example-showcase{
+
+        .example-showcase {
             cursor: pointer;
             color: var(--el-color-primary);
             display: flex;

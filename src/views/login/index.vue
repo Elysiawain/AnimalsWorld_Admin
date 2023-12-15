@@ -3,15 +3,20 @@ import { reactive, ref } from 'vue'
 import { type FormInstance, type FormRules, ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { getAdminApi } from '@/api/Admin'
-import{useAdminStore}from '@/stores/admin'
+import { useAdminStore } from '@/stores/admin'
 const router = useRouter()
 const ruleFormRef = ref<FormInstance>()
 const adminStore = useAdminStore()
 const adminLogin = async () => {
-    const {data:{data}} = await getAdminApi(ruleForm.admin, ruleForm.pass)
-    console.log(data) 
+    const { data: { data } } = await getAdminApi(ruleForm.admin, ruleForm.pass)
+    if (data.code === '') {
+        ElMessage.error(data.msg || '登录失败！')
+        return
+    }
     // 本地持久化
     adminStore.setAdminInfo(data)
+    ElMessage.success('登录成功')
+    router.push('/')
 }
 const validatePass = (rule: any, value: any, callback: any) => {
     // 判断输入的值是否为空
@@ -47,12 +52,8 @@ const submitForm = (formEl: FormInstance | undefined) => {
         if (valid) {
             // TODO 发送登录请求
             await adminLogin()
-            ElMessage.success('登录成功')
-            router.push('/')
-            console.log('登陆成功')
         } else {
             ElMessage.error('请输入正确的用户名和密码')
-            console.log('登录失败')
             return false
         }
     })
@@ -93,15 +94,15 @@ const submitForm = (formEl: FormInstance | undefined) => {
         display: flex;
         align-items: center;
         justify-content: end;
-        padding-right: 100px;
-        width: 100%;
+        width: 80%;
         height: 538px;
         background-image: url('@/assets/arctic_fox.jpg');
         background-size: cover;
         background-repeat: no-repeat;
         background-position: center;
         background-size: 100% 100%;
-
+        border-radius: 10px;
+        overflow: hidden;
         .el-form {
             display: flex;
             width: 350px;
@@ -138,7 +139,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
             }
 
             .el-button {
-                width: 200px;
+                width: 63%;
             }
         }
     }
