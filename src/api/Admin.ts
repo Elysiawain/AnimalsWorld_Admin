@@ -37,7 +37,7 @@ export const updateAdminStatusApi = (adminID: string, status: number) => {
     return request({
         url: '/admin/status',
         method: 'put',
-        params: {
+        params: {  
             adminID,
             status
         }
