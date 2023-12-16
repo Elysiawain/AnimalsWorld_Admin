@@ -30,7 +30,7 @@ const changeTitle = () => {
         title.value = '动物数据'
         activeName.value = 2
     } else if (routerTitle === 'admin') {
-        title.value = '管理员'
+        title.value = '管理员数据'
         activeName.value = 3
     } else if (routerTitle === 'center') {
         title.value = '个人中心'
@@ -117,7 +117,7 @@ onMounted(() => changeTitle())
         display: flex;
         align-items: center;
         background-color: $bgcColor;
-        color: #333;
+        color: $titleHeader;
         font-size: 18px;
         justify-content: end;
         position: relative;

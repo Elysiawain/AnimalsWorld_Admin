@@ -2,13 +2,13 @@
 import { reactive, ref } from 'vue'
 import { type FormInstance, type FormRules, ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { getAdminApi } from '@/api/Admin'
+import { adminLoginApi } from '@/api/Admin'
 import { useAdminStore } from '@/stores/admin'
 const router = useRouter()
 const ruleFormRef = ref<FormInstance>()
 const adminStore = useAdminStore()
 const adminLogin = async () => {
-    const { data: { data } } = await getAdminApi(ruleForm.admin, ruleForm.pass)
+    const { data: { data } } = await adminLoginApi(ruleForm.admin, ruleForm.pass)
     if (data.code === '') {
         ElMessage.error(data.msg || '登录失败！')
         return

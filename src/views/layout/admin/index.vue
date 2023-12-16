@@ -1,36 +1,29 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Search } from '@element-plus/icons-vue'
+import { getAdminListApi, updateAdminStatusApi, deleteAdminApi } from '@/api/Admin'
+import { useAdminStore } from '@/stores/admin'
+import { ElMessage } from 'element-plus'
+const loading=ref(false)
 // admim列表接口
 interface Admin {
-    date: string
+    adminID: string
+    createTime: string
     name: string
     status: number
+    avatarURL: string
 }
 // TODO 发送请求获取管理员数据
+const adminStore = useAdminStore()
+const getAdminList = async () => {
+    loading.value=true
+    const { data: { data } } = await getAdminListApi()
+    setTimeout(() => { loading.value=false }, 200)
+    adminData.value = data.adminList
+}
 
-const adminData = ref<Admin[]>([
-    {
-        date: '2016-05-03',
-        name: 'Tom',
-        status: 1
-    },
-    {
-        date: '2016-05-02',
-        name: 'John',
-        status: 1
-    },
-    {
-        date: '2016-05-04',
-        name: 'Morgan',
-        status: 1
-    },
-    {
-        date: '2016-05-01',
-        name: 'Jessy',
-        status: 0
-    },
-])
+const adminData = ref<Admin[]>([])
+onMounted(() => getAdminList())
 // 页面内动态过滤
 const search = ref('')
 const filterTableData = computed(() =>
@@ -40,24 +33,48 @@ const filterTableData = computed(() =>
             data.name.toLowerCase().includes(search.value.toLowerCase())
     )
 )
-// 修改账号的状态
-const handleEdit = (index: number, row: Admin) => {
+// 修改账号的状态（只有超级管理员可以）
+const handleEdit = async (index: number, row: Admin) => {
+
+    if (adminStore.admin.adminID != 1) {
+        ElMessage.error('当前登录账号权限不足！')
+        return
+    }
     adminData.value.splice(index, 1, { ...row, status: row.status == 1 ? 0 : 1 })
-    console.log(adminData.value)
+    // 发送修改请求
+    let newStatus = row.status == 1 ? 0 : 1
+    await updateAdminStatusApi(row.adminID, newStatus)
+    // 修改成功后刷新页面
+    //getAdminList()
 }
-const handleDelete = (index: number, row: Admin) => {
-    console.log(index, row)
+// 删除该账号（只有超级管理员可以）
+const handleDelete = async (index: number, row: Admin) => {
+
+    if (adminStore.admin.adminID != 1) {
+        ElMessage.error('当前登录账号权限不足！')
+        return
+    }
+    const res=await deleteAdminApi(row.adminID)
+    if(res.data.code===0){
+        ElMessage.error('当前登录账号权限不足！')
+        return
+    }
 }
 
 
 </script>
 
 <template>
-    <div>
-        <el-table :data="filterTableData" stripe style="width: 100%" v-if="adminData.length > 1">
+    <div v-loading="loading">
+        <el-table :data="filterTableData" stripe style="width: 100%" v-if="adminData.length >= 1">
 
             <el-table-column label="管理员" prop="name" />
-            <el-table-column label="创建时间" prop="date" />
+            <el-table-column label="头像" prop="avatarURL">
+                <template #default="scope">
+                    <el-image :src="scope.row.avatarURL" style="width: 25%;" />
+                </template>
+            </el-table-column>
+            <el-table-column label="创建时间" prop="createTime" />
             <el-table-column label="账号状态" prop="status">
                 <!-- 使用插槽动态判断账号状态 -->
                 <template #default="scope">
