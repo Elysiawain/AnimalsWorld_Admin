@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import AnimalItem from '@/components/AnimalItem.vue'
 import { ref, onMounted } from 'vue'
-import { Search } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { Search, Plus } from '@element-plus/icons-vue'
 import { getAnimalListApi, getAnimalClassificationApi } from '@/api/Animals'
-
-
-
+import type { Animal } from '@/pojo/Animal'
+import type { UploadProps, UploadUserFile } from 'element-plus'
+import { upload } from '@/api/Common'
+const loading = ref(false)
 const animalList = ref<any>([])
 const getAnimalList = async () => {
+    loading.value = true
     const { data: { data } } = await getAnimalListApi(1, 10, '哺乳动物')
     animalList.value = data.AWList
+    loading.value = false
     return data.AWList
 }
 onMounted(() => getAnimalList())
@@ -24,59 +28,229 @@ const handleSelect = (key: string) => {
     //TODO 发送请求重新渲染
 }
 // 获取动物分类
+let options: [] = []
 const clIndex = ref<number>(0)
 const classificationList = ref<[]>([])
 const getAnimalClassification = async () => {
+    loading.value = true
     const res = await getAnimalClassificationApi()
+
     console.log(res)
     classificationList.value = res.data.data.classificationList
+    options = classificationList.value
+
+    loading.value = false
 }
 getAnimalClassification()
 // 搜索框
 const search = ref('')
-const startSeach=()=>{
+const startSeach = () => {
     //TODO 发送请求，根据输入框搜索，
 
     // 重新渲染页面
-    
+
 }
 // 触底加载
-const disabled=ref(false)
+const disabled = ref(false)
 const loadMore = async () => {
     console.log('触底加载')
-     const { data: { data } } = await getAnimalListApi(1, 10, '哺乳动物')
+    const { data: { data } } = await getAnimalListApi(1, 10, '哺乳动物')
     // page++
-    
-    if(data.AWList.length==0){
-        disabled.value=true
+
+    if (data.AWList.length == 0) {
+        disabled.value = true
         return
     }
     // 拼接数组
-    animalList.value=[...animalList.value,...data.AWList]
+    animalList.value = [...animalList.value, ...data.AWList]
     console.log(animalList.value)
+}
+
+// 添加新动物
+const drawer_title = ref<any>('添加新动物')
+const drawer = ref<boolean>(false)
+const open = () => {
+    drawer.value = true
+}
+// 分类选择
+
+const addAnimalForm = ref<Animal>({
+    name: '',
+    imgURL: [],
+    description: '',
+    classification: '',
+    distribution: '',
+    protectionLevel: '',
+    diet: '',
+    breeding: '',
+    lifeHabit: '',
+    predator: '',
+})
+// 保护级别
+const protectionLevel = [
+    {
+        value: '1',
+        label: '一级保护'
+    },
+    {
+        value: '2',
+        label: '二级保护'
+    },
+    {
+        value: '3',
+        label: '三级保护'
+    },
+    {
+        value: '4',
+        label: '普通'
+    }
+]
+// 繁殖方式
+const breedList = [
+    {
+        value: '1',
+        label: '胎生'
+    },
+    {
+        value: '2',
+        label: '卵生'
+    },
+    {
+        value: '3',
+        label: '无性'
+    }
+]
+// 图片上传
+const imageUrlList = ref<UploadUserFile[]>([])
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
+    console.log(uploadFile, uploadFiles)
+}
+const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
+    dialogImageUrl.value = uploadFile.url!
+    console.log(uploadFile.url)
+    dialogVisible.value = true
+}
+const beforeUpload: UploadProps['beforeUpload'] = (rawFile) => {
+    if (rawFile.type !== 'image/jpeg' && rawFile.type !== 'image/png') {
+        ElMessage.error('图片格式必须为jpg/png格式')
+        return false
+    } else if (rawFile.size / 1024 / 1024 > 2) {
+        ElMessage.error('上传图片大小必须小于2MB!')
+        return false
+    }
+    return true
+}
+const uploadImg = async (rawFile: any) => {
+    console.log("图片上传...")
+    const {data} = await upload(rawFile)
+    addAnimalForm.value.imgURL.push(data.data.imgURL)
+    console.log(addAnimalForm.value.imgURL)
     
+}
+
+const cancelClick = () => {
+    console.log("取消")
+    drawer.value = false
+}
+const confirmClick = () => {
+    console.log("确认")
+    drawer.value = false
+}
+// 添加结束，重新渲染页面
+const close = () => {
+    // 1、判断添加或修改内容是否经保存，没保存提醒
+    getAnimalList()
+
 }
 </script>
 
 <template>
     <div class="container">
-        <div class="animals-nav">
-            <el-menu  :default-active="nav_index" class="el-menu-demo" mode="horizontal" background-color="#545c64"
-                text-color="#fff" active-text-color="rgb(213,253,157)" @select="handleSelect">
-                <el-menu-item index="1">全部</el-menu-item>
-                <el-sub-menu index="2">
-                    <template #title>{{ classificationList[clIndex] }}</template>
-                    <el-menu-item v-for="(item, index) in classificationList" :index="'2-' + index" :key="item">{{ item
-                    }}</el-menu-item>
-                </el-sub-menu>
-                <el-menu-item index="3">导航三</el-menu-item>
-                <el-menu-item index="4">导航四</el-menu-item>
-            </el-menu>
-            <el-input v-model="search" class="w-50 m-2 search-box" placeholder="搜索" :prefix-icon="Search" @change="startSeach()" />
+        <el-affix :offset="0">
+            <div class="animals-nav">
+                <el-menu :default-active="nav_index" class="el-menu-demo" mode="horizontal" background-color="#545c64"
+                    text-color="#fff" active-text-color="rgb(213,253,157)" @select="handleSelect">
+                    <el-menu-item index="1">全部</el-menu-item>
+                    <el-sub-menu index="2">
+                        <template #title>{{ classificationList[clIndex] }}</template>
+                        <el-menu-item v-for="(item, index) in classificationList" :index="'2-' + index" :key="item">{{ item
+                        }}</el-menu-item>
+                    </el-sub-menu>
+                    <el-menu-item index="3">导航三</el-menu-item>
+                    <el-menu-item index="4" @click="open">添加动物<el-icon>
+                            <CirclePlus />
+                        </el-icon></el-menu-item>
+                </el-menu>
+                <el-input v-model="search" class="w-50 m-2 search-box" placeholder="搜索" :prefix-icon="Search"
+                    @change="startSeach()" />
+            </div>
+        </el-affix>
+        <div v-if="animalList.length > 1" class="animals-container" v-infinite-scroll="loadMore"
+            :infinite-scroll-disabled="disabled">
+            <AnimalItem v-for="(item) in animalList" :key="item" :animalData="item" class="animal-item"
+                v-loading="loading" />
+
+
+
+            <!-- 侧边抽屉 -->
+            <el-drawer v-model="drawer" :title="drawer_title" @close="close">
+                <template #header>
+                    <div style="font-size: larger;">
+                        <img src="@/assets/logoHead.ico" alt="" width="30px">
+                        {{ drawer_title }}
+                    </div>
+                </template>
+                <div class="add-name">
+                    动物名称：
+                    <el-input v-model="addAnimalForm.name" placeholder="动物名称" clearable style="width: 52%;" />
+                </div>
+                <div class="classify">
+                    动物分类：
+                    <el-select v-model="addAnimalForm.classification" clearable placeholder="请选择">
+                        <el-option v-for="item in options" :key="item" :label="item" :value="item" />
+                    </el-select>
+                </div>
+                <div class="pro-level">
+                    保护级别：
+                    <el-select v-model="addAnimalForm.protectionLevel" clearable placeholder="请选择">
+                        <el-option v-for="item in protectionLevel" :key="item.value" :label="item.label"
+                            :value="item.value" />
+                    </el-select>
+                </div>
+                <div>
+                    添加图片：
+                    <el-upload v-model:file-list="imageUrlList" action="#" list-type="picture-card"
+                        :on-preview="handlePictureCardPreview" :on-remove="handleRemove" :http-request="uploadImg"
+                        :before-upload="beforeUpload">
+                        <el-icon>
+                            <Plus />
+                        </el-icon>
+                    </el-upload>
+                    <el-dialog v-model="dialogVisible">
+                        <img w-full :src="dialogImageUrl" alt="Preview Image" />
+                    </el-dialog>
+                </div>
+                <div class="breed">
+                    繁殖方式：
+                    <el-select v-model="addAnimalForm.breeding" clearable placeholder="请选择">
+                        <el-option v-for="item in breedList" :key="item.value" :label="item.label"
+                            :value="item.value" />
+                    </el-select>
+                </div>
+                <div>
+                    
+                </div>
+                <template #footer>
+                    <div style="display: flex; justify-content: start;">
+                        <el-button @click="cancelClick">取消</el-button>
+                        <el-button type="primary" @click="confirmClick">提交</el-button>
+                    </div>
+                </template>
+            </el-drawer>
         </div>
-        <div v-if="animalList.length > 1" class="animals-container" v-infinite-scroll="loadMore" :infinite-scroll-disabled="disabled">
-            <AnimalItem v-for="(item) in animalList" :key="item" :animalData="item" class="animal-item" />
-        </div>
+
         <el-empty description="这里什么也没有哟~" v-else />
     </div>
 </template>
@@ -90,10 +264,12 @@ const loadMore = async () => {
         display: flex;
         align-items: center;
         padding-right: 3%;
-        .el-menu-demo{
+
+        .el-menu-demo {
             flex: 3;
             height: 100%;
         }
+
         .search-box {
             flex: 1;
             width: 30%;
@@ -109,6 +285,22 @@ const loadMore = async () => {
         grid-template-columns: repeat(5, 1fr);
         grid-column-gap: 20px;
         grid-row-gap: 20px;
+
+        .el-drawer {
+            div {
+                margin-bottom: 10px;
+            }
+
+            .classify .add-name {
+                width: 100%;
+                display: flex;
+                justify-content: start;
+                align-items: center;
+                flex-wrap: wrap;
+
+            }
+
+        }
     }
 }
 </style>
