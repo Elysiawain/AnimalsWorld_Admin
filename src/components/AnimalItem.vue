@@ -3,7 +3,9 @@ import { ref } from 'vue'
 defineProps({
     // 动物数据
     animalData: Object,
+    
 })
+
 </script>
 
 <template>

@@ -18,3 +18,13 @@ export const getAnimalListApi = (page:number,pageSize:number,classification:stri
         }
     })
 }
+/**
+ * 获取动物分类
+ * @returns 
+ */
+export const getAnimalClassificationApi = () => {
+    return request({
+        url: '/AW/classification',
+        method: 'get',
+    })
+}
