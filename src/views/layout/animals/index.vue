@@ -11,7 +11,8 @@ onMounted(() => getAnimalList())
 </script>
 
 <template>
-    <div>
+    <div class="container">
+        <div class="animals-nav">顶部导航</div>
         <div v-if="animalList.length > 1" class="animals-container">
             <AnimalItem v-for="(item) in animalList" :key="item" :animalData="item" class="animal-item" />
         </div>
@@ -21,13 +22,21 @@ onMounted(() => getAnimalList())
 </template>
 
 <style scoped lang="scss">
-.animals-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: start;
-    .animal-item {
-        margin:10px 2%;
-
+.container{
+    .animals-nav{
+        width: 100%;
+        background-color: red;
+        margin-bottom: 20px;
     }
+    .animals-container {
+/*     display: flex;
+    flex-wrap: wrap;
+    justify-content: start; */
+    display: grid;
+    grid-template-columns: repeat(5,1fr);
+    grid-column-gap: 20px;
+    grid-row-gap:20px ;
 }
+}
+
 </style>

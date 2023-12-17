@@ -97,7 +97,6 @@ onMounted(() => changeTitle())
                 </el-main>
                 <el-footer>
                     <p>CreateBy：elysia</p>
-                    <p>联系方式：3215624200@qq.com</p>
                     <p>版权所属：© 2023 爱莉希雅天下第一！</p>
                 </el-footer>
             </el-container>
@@ -156,7 +155,8 @@ onMounted(() => changeTitle())
     }
 
     .el-main {
-        flex: 6
+        flex: 6;
+        background-color: $mainBgcColor;
     }
 
     .el-aside {
