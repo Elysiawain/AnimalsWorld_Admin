@@ -1,6 +1,9 @@
 export interface Animal {
     name: string
-    imgURL: []
+    imgURL: [{
+        uid:string
+        url:string
+    }]
     description: string
     classification: string
     distribution: string

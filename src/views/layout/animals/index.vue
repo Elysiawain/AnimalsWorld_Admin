@@ -3,12 +3,14 @@ import AnimalItem from '@/components/AnimalItem.vue'
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search, Plus } from '@element-plus/icons-vue'
-import { getAnimalListApi, getAnimalClassificationApi } from '@/api/Animals'
+import { getAnimalListApi, getAnimalClassificationApi, addAnimalApi } from '@/api/Animals'
 import type { Animal } from '@/pojo/Animal'
 import type { UploadProps, UploadUserFile } from 'element-plus'
 import { upload } from '@/api/Common'
+import { isValidAddAnimalForm } from '@/utils/Check'
 const loading = ref(false)
 const animalList = ref<any>([])
+// 初始化数据
 const getAnimalList = async () => {
     loading.value = true
     const { data: { data } } = await getAnimalListApi(1, 10, '哺乳动物')
@@ -68,7 +70,7 @@ const loadMore = async () => {
 
 // 添加新动物
 const drawer_title = ref<any>('添加新动物')
-const drawer = ref<boolean>(false)
+const drawer = ref<boolean>(true)
 const open = () => {
     drawer.value = true
 }
@@ -76,7 +78,10 @@ const open = () => {
 
 const addAnimalForm = ref<Animal>({
     name: '',
-    imgURL: [],
+    imgURL: [{
+        uid: '',
+        url: ''
+    }],
     description: '',
     classification: '',
     distribution: '',
@@ -124,8 +129,13 @@ const breedList = [
 const imageUrlList = ref<UploadUserFile[]>([])
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
-const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
-    console.log(uploadFile, uploadFiles)
+// 取消已上传图片
+const handleRemove: UploadProps['onRemove'] = (uploadFile) => {
+    // 清除对应的图片
+    const index = addAnimalForm.value.imgURL.findIndex(item => item.uid === uploadFile.raw?.uid.toString())
+    addAnimalForm.value.imgURL.splice(index, 1)
+    console.log(addAnimalForm.value.imgURL)
+
 }
 const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
     dialogImageUrl.value = uploadFile.url!
@@ -143,19 +153,39 @@ const beforeUpload: UploadProps['beforeUpload'] = (rawFile) => {
     return true
 }
 const uploadImg = async (rawFile: any) => {
-    console.log("图片上传...")
-    const {data} = await upload(rawFile)
-    addAnimalForm.value.imgURL.push(data.data.imgURL)
+    const { data } = await upload(rawFile)
+    let newImg = { uid: rawFile.file.uid, url: data.data.imgURL }
+    addAnimalForm.value.imgURL.push(newImg)
     console.log(addAnimalForm.value.imgURL)
-    
+
 }
 
+// 添加请求
+const addAnimal = async () => {
+    const res = await addAnimalApi(addAnimalForm.value)
+    if (res.data.code === '1') {
+        ElMessage.success('添加成功')
+        return true
+    }
+    ElMessage.error('添加失败')
+    return false
+}
 const cancelClick = () => {
     console.log("取消")
     drawer.value = false
 }
-const confirmClick = () => {
+const confirmClick = async () => {
     console.log("确认")
+    // 发送前校验
+    const isValid = await isValidAddAnimalForm(addAnimalForm.value)
+    if (!isValid) {
+        ElMessage.error('请填写完整数据')
+        return
+    }
+    // 发送添加请求
+    const res = await addAnimal()
+    console.log(res)
+    
     drawer.value = false
 }
 // 添加结束，重新渲染页面
@@ -195,7 +225,7 @@ const close = () => {
 
 
             <!-- 侧边抽屉 -->
-            <el-drawer v-model="drawer" :title="drawer_title" @close="close">
+            <el-drawer v-model="drawer" :title="drawer_title" @close="close" size="30%">
                 <template #header>
                     <div style="font-size: larger;">
                         <img src="@/assets/logoHead.ico" alt="" width="30px">
@@ -219,6 +249,12 @@ const close = () => {
                             :value="item.value" />
                     </el-select>
                 </div>
+                <div class="breed">
+                    繁殖方式：
+                    <el-select v-model="addAnimalForm.breeding" clearable placeholder="请选择">
+                        <el-option v-for="item in breedList" :key="item.value" :label="item.label" :value="item.value" />
+                    </el-select>
+                </div>
                 <div>
                     添加图片：
                     <el-upload v-model:file-list="imageUrlList" action="#" list-type="picture-card"
@@ -232,15 +268,10 @@ const close = () => {
                         <img w-full :src="dialogImageUrl" alt="Preview Image" />
                     </el-dialog>
                 </div>
-                <div class="breed">
-                    繁殖方式：
-                    <el-select v-model="addAnimalForm.breeding" clearable placeholder="请选择">
-                        <el-option v-for="item in breedList" :key="item.value" :label="item.label"
-                            :value="item.value" />
-                    </el-select>
-                </div>
-                <div>
-                    
+                <div class="description">
+                    动物简述：
+                    <el-input v-model="addAnimalForm.description" type="textarea" placeholder="请输入该动物的描述"
+                        :autosize="{ minRows: 2, maxRows: 4 }" maxlength="200" show-word-limit />
                 </div>
                 <template #footer>
                     <div style="display: flex; justify-content: start;">
@@ -287,6 +318,7 @@ const close = () => {
         grid-row-gap: 20px;
 
         .el-drawer {
+
             div {
                 margin-bottom: 10px;
             }
