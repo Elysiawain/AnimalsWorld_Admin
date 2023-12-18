@@ -35,6 +35,12 @@ const changeTitle = () => {
     } else if (routerTitle === 'center') {
         title.value = '个人中心'
         activeName.value = 4
+    } else if (routerTitle === 'user') {
+        title.value = '用户数据'
+        activeName.value = 5
+    } else if (routerTitle === 'userUpload') {
+        title.value = '用户上传数据'
+        activeName.value = 6
     }
 }
 watch(route, () => {
@@ -63,12 +69,29 @@ onMounted(() => changeTitle())
                     <router-link class="an_route" to="/admin">
                         <div :class="{ 'check-active': activeName === 3 }"><el-icon>
                                 <Notebook />
-                            </el-icon>管理员</div>
+                            </el-icon>管理员数据</div>
                     </router-link>
                     <router-link class="an_route" to="/center">
-                        <div :class="{ 'check-active': activeName === 4 }"><el-icon>
+                        <div :class="{ 'check-active': activeName === 4 }">
+                            <el-icon>
+                                <Setting />
+                            </el-icon>个人中心
+                        </div>
+                    </router-link>
+                    <router-link class="an_route" to="/user">
+                        <div :class="{ 'check-active': activeName === 5 }"><el-icon>
                                 <UserFilled />
-                            </el-icon>个人中心</div>
+                            </el-icon>用户数据</div>
+                    </router-link>
+                    <router-link class="an_route" to="/userUpload">
+                        <div :class="{ 'check-active': activeName === 6 }">
+                            <el-badge :hidden="false" :value="100" class="mark" :max="99">
+                            <el-icon>
+                                <Document />
+                            </el-icon>
+                               待处理上传
+                            </el-badge>
+                        </div>
                     </router-link>
                 </div>
             </el-aside>
@@ -80,8 +103,12 @@ onMounted(() => changeTitle())
                         <el-avatar :size="60"
                             :src="adminStore?.admin.avatar || 'https://javaweb-twj.oss-cn-beijing.aliyuncs.com/elysiaHead.jpg'" />
                         <template #dropdown>
-                            <el-dropdown-item @click="logOut"><el-icon><SwitchButton /></el-icon> 退出登录</el-dropdown-item>
-                            <el-dropdown-item @click="$router.push('/center')"><el-icon><User /></el-icon> 个人中心</el-dropdown-item>
+                            <el-dropdown-item @click="logOut"><el-icon>
+                                    <SwitchButton />
+                                </el-icon> 退出登录</el-dropdown-item>
+                            <el-dropdown-item @click="$router.push('/center')"><el-icon>
+                                    <User />
+                                </el-icon> 个人中心</el-dropdown-item>
                         </template>
                     </el-dropdown>
 
@@ -129,7 +156,7 @@ onMounted(() => changeTitle())
         }
 
         .el-avatar {
-            margin: 20px;
+            margin: 40px;
         }
 
         img {
@@ -206,6 +233,9 @@ onMounted(() => changeTitle())
                     .el-icon {
                         margin-right: 4px;
                     }
+                    .badge-item{
+                        margin-top:0px;
+                    }
                 }
 
                 .check-active {
@@ -231,7 +261,6 @@ onMounted(() => changeTitle())
                         border-radius: 50%;
                     }
                 }
-
             }
 
             .router-link-exact-active {

@@ -27,7 +27,7 @@ const showDrawer=()=>{
         <div class="title-img" :style="{ backgroundImage: `url(${animalData?.imgURL[0].url})` }">
             <div class="edit"><span @click="showDrawer" ><el-icon><Edit /></el-icon>编辑 </span></div>
         </div>
-        <div>{{ animalData?.name }}</div>
+        <div class="animal-name">{{ animalData?.name }}</div>
     </div>
 </template>
 
@@ -49,8 +49,12 @@ const showDrawer=()=>{
     overflow: hidden;
     &:hover {
         transform: translate3d(0px, -10px, 0px);
+        // 加一点背景阴影
+        box-shadow: 0 15px 30px rgb(0 0 0 / 0.2);
     }
-
+    .animal-name{
+       margin-bottom:5%
+    }
     .title-img {
         width: 100%;
         height: 70%;
@@ -82,7 +86,7 @@ const showDrawer=()=>{
                 cursor: pointer;
                 transition: all 0.2s linear;
                 width: 100%;
-                background-color: rgba($color: #000000, $alpha: .2);
+                background-image: linear-gradient(to top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
                 &:hover{
                     color: white;
                 }

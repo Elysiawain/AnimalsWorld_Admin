@@ -3,7 +3,7 @@ import AnimalItem from '@/components/AnimalItem.vue'
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search, Plus } from '@element-plus/icons-vue'
-import { getAnimalListApi, getAnimalClassificationApi, addAnimalApi } from '@/api/Animals'
+import { getAnimalListApi, getAnimalClassificationApi, addAnimalApi, getAnimalByName } from '@/api/Animals'
 import type { Animal } from '@/pojo/Animal'
 import type { UploadProps, UploadUserFile } from 'element-plus'
 import { upload } from '@/api/Common'
@@ -11,10 +11,13 @@ import { isValidAddAnimalForm } from '@/utils/Check'
 const loading = ref(false)
 const animalList = ref<any>([])
 const total = ref(0)
+const page = ref(1)
+const pageSize = ref(10)
+const classification=ref<string>('')
 // 初始化数据
 const getAnimalList = async () => {
     loading.value = true
-    const { data: { data } } = await getAnimalListApi(1, 10, '哺乳动物')
+    const { data: { data } } = await getAnimalListApi(page.value,pageSize.value,classification.value)
     animalList.value = data.AWList
     total.value = data.total
     loading.value = false
@@ -24,12 +27,16 @@ onMounted(() => getAnimalList())
 
 // 导航栏
 const nav_index = ref('1')
-const handleSelect = (key: string) => {
+const handleSelect = async (key: string) => {
     const newIndex = key.split('-')[1]
     if (newIndex !== undefined) {
         clIndex.value = Number(newIndex)
     }
+    if(key==='4'){return}
     //TODO 发送请求重新渲染
+    classification.value=newIndex
+    getAnimalList()
+
 }
 // 获取动物分类
 let options: [] = []
@@ -38,8 +45,6 @@ const classificationList = ref<[]>([])
 const getAnimalClassification = async () => {
     loading.value = true
     const res = await getAnimalClassificationApi()
-
-    console.log(res)
     classificationList.value = res.data.data.classificationList
     options = classificationList.value
 
@@ -48,11 +53,13 @@ const getAnimalClassification = async () => {
 getAnimalClassification()
 // 搜索框
 const search = ref('')
-const startSeach = () => {
-    //TODO 发送请求，根据输入框搜索，
-
+const startSeach = async () => {
+    //发送请求，根据输入框搜索，
+    const res = await getAnimalByName(search.value)
+    console.log(res)
+    search.value = ''
     // 重新渲染页面
-
+    getAnimalList()
 }
 // 触底加载
 const disabled = ref(false)
@@ -222,7 +229,6 @@ const close = () => {
     // 1、判断添加或修改内容是否经保存，没保存提醒
     addAnimalForm.value = {}
     addAnimalForm.value.imgURL = []
-    getAnimalList()
 
 }
 </script>
@@ -247,11 +253,15 @@ const close = () => {
                     <el-row>
                         <el-statistic :value="total" value-style="color: rgb(135,206,235);" style="margin-left: 20px;">
                             <template #title>
-                                <div style="color:rgb(213,253,157) ; font-size: 16px;">
+                                <div style="color:rgb(213,253,157) ; font-size: 16px; display:flex;  align-items:center;">
                                     数据总量
-                                    <el-icon><PieChart /></el-icon>
+                                    <el-icon style="font-size:30px">
+                                        <PieChart />
+                                    </el-icon>
                                 </div>
-                            </template></el-statistic>
+                            </template>
+
+                        </el-statistic>
                     </el-row>
 
                 </el-menu>
@@ -272,7 +282,9 @@ const close = () => {
                     <div style="font-size: larger;display:flex;align-items:center;">
                         <img src="@/assets/logoHead.ico" alt="" width="30px" style="margin-right:15px;">
                         {{ drawer_title }}
-                        <el-icon style="margin-left:2px;font-size:20px;"><Edit /></el-icon>
+                        <el-icon style="margin-left:2px;font-size:20px;">
+                            <Edit />
+                        </el-icon>
                     </div>
                 </template>
                 <div class="add-name">
@@ -332,29 +344,33 @@ const close = () => {
 <style scoped lang="scss">
 .container {
     position: relative;
-    .back-top{
-        width:50px;
-        height:50px;
-        position:absolute;
+
+    .back-top {
+        width: 50px;
+        height: 50px;
+        position: absolute;
         position: fixed;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        color:$titleFontColor;
-        font-size:40px;
-        top:70%;
-        right:0.2%;
-        z-index:99;
-        background-color:rgba(0,0,0,0.3);
-        border-radius:50%;
-        transition:all 0.2s linear;
-        &:hover{
-            background-color:$asideFontColor;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: $titleFontColor;
+        font-size: 40px;
+        top: 70%;
+        right: 0.2%;
+        z-index: 99;
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 50%;
+        transition: all 0.2s linear;
+
+        &:hover {
+            background-color: $asideFontColor;
         }
     }
-    .active-back-top{
-        opacity:1;
+
+    .active-back-top {
+        opacity: 1;
     }
+
     .animals-nav {
         background-color: #545c64;
         width: 100%;
@@ -398,7 +414,6 @@ const close = () => {
                 justify-content: start;
                 align-items: center;
                 flex-wrap: wrap;
-
             }
 
         }

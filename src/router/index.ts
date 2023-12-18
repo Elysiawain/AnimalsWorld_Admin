@@ -20,14 +20,24 @@ const router = createRouter({
           component: () => import('@/views/layout/animals/index.vue')
         },
         {
-          path:'admin',
-          name:'admin',
+          path: 'admin',
+          name: 'admin',
           component: () => import('@/views/layout/admin/index.vue')
         },
         {
-          path:'center',
-          name:'center',
+          path: 'center',
+          name: 'center',
           component: () => import('@/views/layout/center/index.vue')
+        },
+        {
+          path: 'user',
+          name: 'user',
+          component: () => import('@/views/layout/user/index.vue')
+        },
+        {
+          path: 'userUpload',
+          name: 'userUpload',
+          component: () => import('@/views/layout/user/upload.vue')
         }
       ]
     },
@@ -37,7 +47,7 @@ const router = createRouter({
       component: () => import('@/views/login/index.vue')
     },
     {
-      path:'/:catchAll(.*)',
+      path: '/:catchAll(.*)',
       name: '404',
       component: () => import('@/views/404.vue')
     }

@@ -41,3 +41,14 @@ export const addAnimalApi = (animal: Animal) => {
         data: animal
     })
 }
+/**
+ * 搜索
+ * @param name 
+ * @returns 
+ */
+export const getAnimalByName = (name:string) => {
+    return request({
+        url: `/AW/search/${name}`,
+        method: 'get',
+    })
+}
