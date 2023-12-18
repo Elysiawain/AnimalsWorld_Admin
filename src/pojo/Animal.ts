@@ -7,9 +7,9 @@ export interface Animal {
     description: string
     classification: string
     distribution: string
-    protectionLevel: string
+    protectLevel: string
     diet: string
     breeding: string
-    lifeHabit: string
+    lifestyle: string
     predator: string
 }

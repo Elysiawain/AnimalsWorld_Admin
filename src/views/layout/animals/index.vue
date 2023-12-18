@@ -10,11 +10,13 @@ import { upload } from '@/api/Common'
 import { isValidAddAnimalForm } from '@/utils/Check'
 const loading = ref(false)
 const animalList = ref<any>([])
+const total = ref(0)
 // 初始化数据
 const getAnimalList = async () => {
     loading.value = true
     const { data: { data } } = await getAnimalListApi(1, 10, '哺乳动物')
     animalList.value = data.AWList
+    total.value = data.total
     loading.value = false
     return data.AWList
 }
@@ -55,7 +57,6 @@ const startSeach = () => {
 // 触底加载
 const disabled = ref(false)
 const loadMore = async () => {
-    console.log('触底加载')
     const { data: { data } } = await getAnimalListApi(1, 10, '哺乳动物')
     // page++
 
@@ -65,13 +66,41 @@ const loadMore = async () => {
     }
     // 拼接数组
     animalList.value = [...animalList.value, ...data.AWList]
-    console.log(animalList.value)
 }
 
 // 添加新动物
 const drawer_title = ref<any>('添加新动物')
-const drawer = ref<boolean>(true)
+const drawer = ref<boolean>(false)
+// 子组件打开
+const handleDrawerUpdate = (newDrawerStatus: any) => {
+    drawer.value = newDrawerStatus
+}
+//子组件初始化抽屉
+const imageUrlList = ref<UploadUserFile[]>([{
+    name: '',
+    url: ''
+}])
+const initAnimal = (animalData: Animal) => {
+    addAnimalForm.value = animalData
+    // 清空
+    imageUrlList.value = []
+    drawer_title.value = '编辑动物'
+    addAnimalForm.value.imgURL.forEach(img => {
+        let initImg = {
+            name: '',
+            url: ''
+        }
+        initImg.name = img.uid
+        initImg.url = img.url
+        imageUrlList.value.push(initImg)
+    })
+
+
+}
+// 打开抽屉
 const open = () => {
+    imageUrlList.value = []
+    drawer_title.value = '添加新动物'
     drawer.value = true
 }
 // 分类选择
@@ -85,10 +114,10 @@ const addAnimalForm = ref<Animal>({
     description: '',
     classification: '',
     distribution: '',
-    protectionLevel: '',
+    protectLevel: '',
     diet: '',
     breeding: '',
-    lifeHabit: '',
+    lifestyle: '',
     predator: '',
 })
 // 保护级别
@@ -126,7 +155,7 @@ const breedList = [
     }
 ]
 // 图片上传
-const imageUrlList = ref<UploadUserFile[]>([])
+
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 // 取消已上传图片
@@ -185,19 +214,21 @@ const confirmClick = async () => {
     // 发送添加请求
     const res = await addAnimal()
     console.log(res)
-    
+
     drawer.value = false
 }
 // 添加结束，重新渲染页面
 const close = () => {
     // 1、判断添加或修改内容是否经保存，没保存提醒
+    addAnimalForm.value = {}
+    addAnimalForm.value.imgURL = []
     getAnimalList()
 
 }
 </script>
 
 <template>
-    <div class="container">
+    <div class="container" ref="container" id="container">
         <el-affix :offset="0">
             <div class="animals-nav">
                 <el-menu :default-active="nav_index" class="el-menu-demo" mode="horizontal" background-color="#545c64"
@@ -209,9 +240,20 @@ const close = () => {
                         }}</el-menu-item>
                     </el-sub-menu>
                     <el-menu-item index="3">导航三</el-menu-item>
+
                     <el-menu-item index="4" @click="open">添加动物<el-icon>
                             <CirclePlus />
                         </el-icon></el-menu-item>
+                    <el-row>
+                        <el-statistic :value="total" value-style="color: rgb(135,206,235);" style="margin-left: 20px;">
+                            <template #title>
+                                <div style="color:rgb(213,253,157) ; font-size: 16px;">
+                                    数据总量
+                                    <el-icon><PieChart /></el-icon>
+                                </div>
+                            </template></el-statistic>
+                    </el-row>
+
                 </el-menu>
                 <el-input v-model="search" class="w-50 m-2 search-box" placeholder="搜索" :prefix-icon="Search"
                     @change="startSeach()" />
@@ -219,17 +261,18 @@ const close = () => {
         </el-affix>
         <div v-if="animalList.length > 1" class="animals-container" v-infinite-scroll="loadMore"
             :infinite-scroll-disabled="disabled">
-            <AnimalItem v-for="(item) in animalList" :key="item" :animalData="item" class="animal-item"
-                v-loading="loading" />
+            <AnimalItem v-for="(item) in animalList" :key="item" :animalData="item" :drawer="drawer"
+                @update-drawer="handleDrawerUpdate" @init-animal="initAnimal" class="animal-item" v-loading="loading" />
 
 
 
             <!-- 侧边抽屉 -->
             <el-drawer v-model="drawer" :title="drawer_title" @close="close" size="30%">
                 <template #header>
-                    <div style="font-size: larger;">
-                        <img src="@/assets/logoHead.ico" alt="" width="30px">
+                    <div style="font-size: larger;display:flex;align-items:center;">
+                        <img src="@/assets/logoHead.ico" alt="" width="30px" style="margin-right:15px;">
                         {{ drawer_title }}
+                        <el-icon style="margin-left:2px;font-size:20px;"><Edit /></el-icon>
                     </div>
                 </template>
                 <div class="add-name">
@@ -244,7 +287,7 @@ const close = () => {
                 </div>
                 <div class="pro-level">
                     保护级别：
-                    <el-select v-model="addAnimalForm.protectionLevel" clearable placeholder="请选择">
+                    <el-select v-model="addAnimalForm.protectLevel" clearable placeholder="请选择">
                         <el-option v-for="item in protectionLevel" :key="item.value" :label="item.label"
                             :value="item.value" />
                     </el-select>
@@ -288,6 +331,30 @@ const close = () => {
 
 <style scoped lang="scss">
 .container {
+    position: relative;
+    .back-top{
+        width:50px;
+        height:50px;
+        position:absolute;
+        position: fixed;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        color:$titleFontColor;
+        font-size:40px;
+        top:70%;
+        right:0.2%;
+        z-index:99;
+        background-color:rgba(0,0,0,0.3);
+        border-radius:50%;
+        transition:all 0.2s linear;
+        &:hover{
+            background-color:$asideFontColor;
+        }
+    }
+    .active-back-top{
+        opacity:1;
+    }
     .animals-nav {
         background-color: #545c64;
         width: 100%;
@@ -295,6 +362,8 @@ const close = () => {
         display: flex;
         align-items: center;
         padding-right: 3%;
+        border-radius: 8px;
+        overflow: hidden;
 
         .el-menu-demo {
             flex: 3;

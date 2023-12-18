@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { Search } from '@element-plus/icons-vue'
+import { Search,Delete } from '@element-plus/icons-vue'
 import { getAdminListApi, updateAdminStatusApi, deleteAdminApi } from '@/api/Admin'
 import { useAdminStore } from '@/stores/admin'
 import { ElMessage } from 'element-plus'
@@ -92,8 +92,8 @@ const handleDelete = async (index: number, row: Admin) => {
                 <template #default="scope">
                     <el-button size="small" :type="scope.row.status == 1 ? 'primary' : 'warning'" plain
                         @click="handleEdit(scope.$index, scope.row)">{{ scope.row.status === 1 ? '禁用' : '启用' }}</el-button>
-                    <el-button size="small" type="danger" plain
-                        @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                    <el-button size="small" type="danger" :icon="Delete" circle plain
+                        @click="handleDelete(scope.$index, scope.row)"></el-button>
                 </template>
             </el-table-column>
         </el-table>

@@ -80,8 +80,8 @@ onMounted(() => changeTitle())
                         <el-avatar :size="60"
                             :src="adminStore?.admin.avatar || 'https://javaweb-twj.oss-cn-beijing.aliyuncs.com/elysiaHead.jpg'" />
                         <template #dropdown>
-                            <el-dropdown-item @click="logOut">退出登录</el-dropdown-item>
-                            <el-dropdown-item @click="$router.push('/center')">个人中心</el-dropdown-item>
+                            <el-dropdown-item @click="logOut"><el-icon><SwitchButton /></el-icon> 退出登录</el-dropdown-item>
+                            <el-dropdown-item @click="$router.push('/center')"><el-icon><User /></el-icon> 个人中心</el-dropdown-item>
                         </template>
                     </el-dropdown>
 
@@ -145,7 +145,7 @@ onMounted(() => changeTitle())
     }
 
     .el-footer {
-        flex: 1;
+        flex: .7;
         display: flex;
         flex-direction: column;
         justify-content: space-around;

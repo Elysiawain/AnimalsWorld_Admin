@@ -1,17 +1,31 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-defineProps({
+import { ref ,toRefs} from 'vue'
+import type{Animal}from'@/pojo/Animal'
+const props=defineProps({
     // 动物数据
     animalData: Object,
+    drawer:Boolean,
     
 })
+// 修改父组件的数据
+const emit=defineEmits(['updateDrawer','initAnimal']) // 定义事件
+const showDrawer=()=>{
+    emit('updateDrawer',!props.drawer)
+    console.log("子组件数据：")
+    
+    const animalData=props.animalData
+    console.log(animalData)
+    
+    emit('initAnimal',animalData)
+}
+
 
 </script>
 
 <template>
     <div class="container">
-        <div class="title-img" :style="{ backgroundImage: `url(${animalData?.imgURL})` }">
-            <div class="edit"><span>编辑</span></div>
+        <div class="title-img" :style="{ backgroundImage: `url(${animalData?.imgURL[0].url})` }">
+            <div class="edit"><span @click="showDrawer" ><el-icon><Edit /></el-icon>编辑 </span></div>
         </div>
         <div>{{ animalData?.name }}</div>
     </div>
@@ -64,6 +78,7 @@ defineProps({
             span{
                 display: flex;
                 justify-content: center;
+                align-items:center;
                 cursor: pointer;
                 transition: all 0.2s linear;
                 width: 100%;
