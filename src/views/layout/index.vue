@@ -212,7 +212,7 @@ onMounted(() => changeTitle())
                 width: 100%;
                 height: 80px;
                 line-height: 80px;
-                color: $asideFontColor;
+                color: $titleHeader;
                 transition: all .2s linear;
                 display: flex;
                 justify-content: start;

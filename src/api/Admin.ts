@@ -59,3 +59,35 @@ export const deleteAdminApi = (adminID: string) => {
     }
     )
 }
+/**
+ * 管理员端获取用户得数据
+ * @returns 
+ */
+export const getUserApi = (page:Number,pageSize:Number,userID:String,userName:String) => {
+    return request({
+        url: '/admin/user',
+        method: 'get',
+        data:{
+            page,
+            pageSize,
+            userID,
+            userName
+        }
+    })
+}
+/**
+ * 修改用户的数据
+ * @param userID 
+ * @param status 
+ * @returns 
+ */
+export const updaeUserStatusApi = (userID:string,status:number) => {
+    return request({
+        url: '/admin/user/status',
+        method: 'put',
+        params: {
+            userID,
+            status
+        }
+    })
+}

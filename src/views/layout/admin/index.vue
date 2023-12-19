@@ -4,15 +4,9 @@ import { Search,Delete } from '@element-plus/icons-vue'
 import { getAdminListApi, updateAdminStatusApi, deleteAdminApi } from '@/api/Admin'
 import { useAdminStore } from '@/stores/admin'
 import { ElMessage } from 'element-plus'
+import type { Admin } from '@/pojo/Admin'
 const loading=ref(false)
-// admim列表接口
-interface Admin {
-    adminID: string
-    createTime: string
-    name: string
-    status: number
-    avatarURL: string
-}
+
 // TODO 发送请求获取管理员数据
 const adminStore = useAdminStore()
 const getAdminList = async () => {
