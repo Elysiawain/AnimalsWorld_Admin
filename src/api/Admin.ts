@@ -60,6 +60,18 @@ export const deleteAdminApi = (adminID: string) => {
     )
 }
 /**
+ * 获取管理员详情
+ * @param adminID 
+ * @returns 
+ */
+export const getAdminDetailApi = (adminID: string) => {
+    return request({
+        url: `/admin/${adminID}`,
+        method: 'get',
+    }
+    )
+}
+/**
  * 管理员端获取用户得数据
  * @returns 
  */
