@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAdminStore } from '@/stores/admin'
 
@@ -19,7 +19,7 @@ const logOut = () => {
 // 头部标题切换
 let routerTitle: any = ''
 const title = ref<string>('首页')
-const activeName = ref<number>()
+const activeName = ref<number>(1)
 // 监听路由变化，动态设置头部标题
 const changeTitle = () => {
     routerTitle = route.name
@@ -47,49 +47,74 @@ watch(route, () => {
     changeTitle()
 })
 onMounted(() => changeTitle())
+
+const train = ref<any>(15)
+const trainLocation = computed(() => {
+    return {
+        top: `${train.value}%`
+    }
+})
+onMounted(() => train.value = (activeName.value - 1) * 11.4 + 15)
 </script>
 
 <template>
     <div class="common-layout">
         <el-container>
             <el-aside width="200px">
+                <!-- 滑动轨道 -->
+                <div class="track" :style="trainLocation">
+                    <div class="train"></div>
+                </div>
                 <!-- 侧边栏 -->
                 <div class="logo"></div>
                 <div class="aside-nav">
-                    <router-link class="an_route" to="/home">
-                        <div :class="{ 'check-active': activeName === 1 }"><el-icon>
+                    <router-link class="an_route" to="/home" @mouseenter="train = 15"
+                        @mouseleave="train = (activeName - 1) * 11.4 + 15">
+                        <div :class="{ 'check-active': activeName === 1 }"><el-icon
+                                :class="{ 'icon-active': activeName === 1 }">
                                 <Menu />
                             </el-icon>首页</div>
                     </router-link>
-                    <router-link class="an_route" to="/animals">
-                        <div :class="{ 'check-active': activeName === 2 }"><el-icon>
+                    <router-link class="an_route" to="/animals" @mouseenter="train = 27"
+                        @mouseleave="train = (activeName - 1) * 11.4 + 15">
+                        <div :class="{ 'check-active': activeName === 2 }"><el-icon
+                                :class="{ 'icon-active': activeName === 2 }">
                                 <Star />
                             </el-icon>动物数据</div>
                     </router-link>
-                    <router-link class="an_route" to="/admin">
-                        <div :class="{ 'check-active': activeName === 3 }"><el-icon>
+                    <router-link class="an_route" to="/admin" @mouseenter="train = 39"
+                        @mouseleave="train = (activeName - 1) * 11.4 + 15">
+                        <div :class="{ 'check-active': activeName === 3 }"><el-icon
+                                :class="{ 'icon-active': activeName === 3 }">
                                 <Notebook />
-                            </el-icon>管理员数据</div>
+                            </el-icon>管理员数据
+                        </div>
                     </router-link>
-                    <router-link class="an_route" to="/center">
+                    <router-link class="an_route" to="/center" @mouseenter="train = 49"
+                        @mouseleave="train = (activeName - 1) * 11.4 + 15">
                         <div :class="{ 'check-active': activeName === 4 }">
-                            <el-icon>
+                            <el-icon :class="{ 'icon-active': activeName === 4 }">
                                 <Setting />
                             </el-icon>个人中心
                         </div>
                     </router-link>
-                    <router-link class="an_route" to="/user">
-                        <div :class="{ 'check-active': activeName === 5 }"><el-icon>
+                    <router-link class="an_route" to="/user" @mouseenter="train = 61"
+                        @mouseleave="train = (activeName - 1) * 11.4 + 15">
+                        <div :class="{ 'check-active': activeName === 5 }">
+                            <el-icon :class="{ 'icon-active': activeName === 5 }">
                                 <UserFilled />
-                            </el-icon>用户数据</div>
+                            </el-icon>
+                            用户数据
+                        </div>
                     </router-link>
-                    <router-link class="an_route" to="/userUpload">
+                    <router-link class="an_route" to="/userUpload" @mouseenter="train = 73"
+                        @mouseleave="train = (activeName - 1) * 11.4 + 15">
                         <div :class="{ 'check-active': activeName === 6 }">
                             <el-badge :hidden="false" :value="100" class="mark" :max="99">
-                            <el-icon>
-                                <Document />
-                            </el-icon>
-                               待处理上传
+                                <el-icon :class="{ 'icon-active': activeName === 6 }">
+                                    <Document />
+                                </el-icon>
+                                待处理上传
                             </el-badge>
                         </div>
                     </router-link>
@@ -98,7 +123,7 @@ onMounted(() => changeTitle())
             <el-container>
                 <el-header>
                     <div class="header-title">{{ title }}</div>
-                    <div>管理员：{{ adminStore?.admin.nickname }}</div>
+                    <div>管理员：{{ adminStore?.admin.name }}</div>
                     <el-dropdown>
                         <el-avatar :size="60"
                             :src="adminStore?.admin.avatar || 'https://javaweb-twj.oss-cn-beijing.aliyuncs.com/elysiaHead.jpg'" />
@@ -190,6 +215,24 @@ onMounted(() => changeTitle())
         background-color: $navBgcColor;
         color: #333;
         text-align: center;
+        position: relative;
+
+        .track {
+            position: absolute;
+            height: 100%;
+            width: 2%;
+            right: 0%;
+            transition: all 0.1s linear;
+
+            .train {
+                width: 100%;
+                height: 50px;
+                background-color: $titleFontColor;
+                position: absolute;
+                //top: 15%;
+                transition: all 0.3s linear;
+            }
+        }
 
         .logo {
             width: 100%;
@@ -233,8 +276,9 @@ onMounted(() => changeTitle())
                     .el-icon {
                         margin-right: 4px;
                     }
-                    .badge-item{
-                        margin-top:0px;
+
+                    .badge-item {
+                        margin-top: 0px;
                     }
                 }
 
@@ -248,6 +292,24 @@ onMounted(() => changeTitle())
                     height: 60%;
                     background-color: rgb(208, 233, 173);
                     z-index: 3;
+
+                    .icon-active {
+                        animation: icon 0.3s;
+                    }
+
+                    @keyframes icon {
+                        0% {
+                            scale: 1;
+                        }
+
+                        50% {
+                            scale: 0.6;
+                        }
+
+                        100% {
+                            scale: 1;
+                        }
+                    }
 
                     &::after {
                         content: '';
@@ -266,7 +328,7 @@ onMounted(() => changeTitle())
             .router-link-exact-active {
                 color: $titleFontColor;
                 font-weight: bold;
-                border-right: $titleFontColor 4px solid;
+                // border-right: $titleFontColor 4px solid;
             }
         }
     }

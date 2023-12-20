@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AnimalItem from '@/components/AnimalItem.vue'
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Search, Plus } from '@element-plus/icons-vue'
 import { getAnimalListApi, getAnimalClassificationApi, addAnimalApi, getAnimalByName } from '@/api/Animals'
@@ -13,11 +14,12 @@ const animalList = ref<any>([])
 const total = ref(0)
 const page = ref(1)
 const pageSize = ref(10)
-const classification=ref<string>('')
+const classification = ref<string>('')
+const route = useRoute()
 // 初始化数据
 const getAnimalList = async () => {
     loading.value = true
-    const { data: { data } } = await getAnimalListApi(page.value,pageSize.value,classification.value)
+    const { data: { data } } = await getAnimalListApi(page.value, pageSize.value, classification.value)
     animalList.value = data.AWList
     total.value = data.total
     loading.value = false
@@ -32,9 +34,9 @@ const handleSelect = async (key: string) => {
     if (newIndex !== undefined) {
         clIndex.value = Number(newIndex)
     }
-    if(key==='4'){return}
+    if (key === '4') { return }
     //TODO 发送请求重新渲染
-    classification.value=newIndex
+    classification.value = newIndex
     getAnimalList()
 
 }
@@ -64,6 +66,10 @@ const startSeach = async () => {
 // 触底加载
 const disabled = ref(false)
 const loadMore = async () => {
+
+    if (route.name !== 'about') {
+        return
+    }
     const { data: { data } } = await getAnimalListApi(1, 10, '哺乳动物')
     // page++
 
@@ -232,7 +238,7 @@ const close = () => {
 
 }
 </script>
-
+v-infinite-scroll
 <template>
     <div class="container" ref="container" id="container">
         <el-affix :offset="0">
@@ -269,13 +275,11 @@ const close = () => {
                     @change="startSeach()" />
             </div>
         </el-affix>
+
         <div v-if="animalList.length > 1" class="animals-container" v-infinite-scroll="loadMore"
             :infinite-scroll-disabled="disabled">
             <AnimalItem v-for="(item) in animalList" :key="item" :animalData="item" :drawer="drawer"
                 @update-drawer="handleDrawerUpdate" @init-animal="initAnimal" class="animal-item" v-loading="loading" />
-
-
-
             <!-- 侧边抽屉 -->
             <el-drawer v-model="drawer" :title="drawer_title" @close="close" size="30%">
                 <template #header>
@@ -336,7 +340,6 @@ const close = () => {
                 </template>
             </el-drawer>
         </div>
-
         <el-empty description="这里什么也没有哟~" v-else />
     </div>
 </template>
