@@ -126,7 +126,7 @@ onMounted(() => train.value = (activeName.value - 1) * 11.4 + 15)
                     <div>管理员：{{ adminStore?.admin.name }}</div>
                     <el-dropdown>
                         <el-avatar :size="60"
-                            :src="adminStore?.admin.avatar || 'https://javaweb-twj.oss-cn-beijing.aliyuncs.com/elysiaHead.jpg'" />
+                            :src="adminStore?.admin.avatarURL || 'https://javaweb-twj.oss-cn-beijing.aliyuncs.com/elysiaHead.jpg'" />
                         <template #dropdown>
                             <el-dropdown-item @click="logOut"><el-icon>
                                     <SwitchButton />

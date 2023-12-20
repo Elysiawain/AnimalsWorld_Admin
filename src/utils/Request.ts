@@ -11,7 +11,6 @@ const request = axios.create({
 
 // 添加请求拦截器
 request.interceptors.request.use(config =>{
-    const requestLoading=ElLoading.service()
     // 在发送请求之前做些什么
 
     if (adminStore.token) {
@@ -21,7 +20,7 @@ request.interceptors.request.use(config =>{
         ElMessage.error('请先登录!')
         return false
     }
-    requestLoading.close()
+
     return config;
 }, error => {
     // 对请求错误做些什么

@@ -9,6 +9,8 @@ import type { Animal } from '@/pojo/Animal'
 import type { UploadProps, UploadUserFile } from 'element-plus'
 import { upload } from '@/api/Common'
 import { isValidAddAnimalForm } from '@/utils/Check'
+
+
 const loading = ref(false)
 const animalList = ref<any>([])
 const total = ref(0)

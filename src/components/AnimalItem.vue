@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref ,toRefs} from 'vue'
-import type{Animal}from'@/pojo/Animal'
 const props=defineProps({
     // 动物数据
     animalData: Object,
