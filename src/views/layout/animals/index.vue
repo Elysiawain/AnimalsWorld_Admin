@@ -9,7 +9,7 @@ import type { Animal } from '@/pojo/Animal'
 import type { UploadProps, UploadUserFile } from 'element-plus'
 import { upload } from '@/api/Common'
 import { isValidAddAnimalForm } from '@/utils/Check'
-
+import { debounce } from '@/utils/debounce'
 
 const loading = ref(false)
 const animalList = ref<any>([])
@@ -68,7 +68,6 @@ const startSeach = async () => {
 // 触底加载
 const disabled = ref(false)
 const loadMore = async () => {
-
     if (route.name !== 'about') {
         return
     }
@@ -82,7 +81,7 @@ const loadMore = async () => {
     // 拼接数组
     animalList.value = [...animalList.value, ...data.AWList]
 }
-
+const debounceLoadMore = debounce(loadMore, 500, { leading: false })
 // 添加新动物
 const drawer_title = ref<any>('添加新动物')
 const drawer = ref<boolean>(false)
@@ -277,7 +276,7 @@ v-infinite-scroll
             </div>
         </el-affix>
 
-        <div v-if="animalList.length > 1" class="animals-container" v-infinite-scroll="loadMore"
+        <div v-if="animalList.length > 1" class="animals-container" v-infinite-scroll="debounceLoadMore"
             :infinite-scroll-disabled="disabled">
             <AnimalItem v-for="(item) in animalList" :key="item" :animalData="item" :drawer="drawer"
                 @update-drawer="handleDrawerUpdate" @init-animal="initAnimal" class="animal-item" v-loading="loading" />

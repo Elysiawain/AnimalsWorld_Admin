@@ -5,6 +5,10 @@ const props = defineProps({
     titie: String,
     animalData: Object
 })
+const limit=ref(4)
+const limitChange=()=>{
+    limit.value=limit.value+10
+}
 </script>
 
 <template>
@@ -13,11 +17,11 @@ const props = defineProps({
             <el-icon>
                 <ArrowRightBold />
             </el-icon>
-            <span>查看更多<el-icon :size="18"><Expand /></el-icon></span>
+            <span @click="limitChange">查看更多<el-icon :size="18"><Expand /></el-icon></span>
         </h3>
         <el-divider />
         <div class="detail-item">
-            <AnimalItem v-for="(item) in animalData?.slice(0, 4)" :key="item" :animal-data="item" class="item" />
+            <AnimalItem v-for="(item) in animalData?.slice(0, limit)" :key="item" :animal-data="item" class="item" />
         </div>
     </div>
 </template>
