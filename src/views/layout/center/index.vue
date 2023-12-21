@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, markRaw } from 'vue'
 import { useAdminStore } from '@/stores/admin'
-import { getAdminDetailApi } from '@/api/Admin'
-import { Warning, } from '@element-plus/icons-vue'
+import { getAdminDetailApi, updateAdminApi } from '@/api/Admin'
+import { Warning, Plus } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import type { UploadProps } from 'element-plus'
 import AdminDetail from '@/components/AdminDetail.vue'
 import { getAnimalById } from '@/api/Animals'
+import { upload } from '@/api/Common'
+
 const adminStore = useAdminStore()
 // 获取管理员详细信息
 const adminDetail = ref<any>({})
@@ -26,8 +29,31 @@ onMounted(() => getAdminDetail())
 // 编辑信息
 const drawer = ref(false)
 const direction = ref('rtl')
+const newAdminInfo = ref<any>({
+    name: '',
+    bgcImgURL: '',
+    avatarURL: '',
+    message: '',
+})
+
 const editAdmin = () => {
     drawer.value = true
+}
+const beforeImgUpload: UploadProps['beforeUpload'] = (rawFile) => {
+    if (rawFile.size / 1024 / 1024 > 2) {
+        ElMessage.error('上传图片大小不能超过 2MB!')
+        return false
+    }
+    return true
+}
+const uploadImg = () => {
+}
+const imgChange = async (uploadFile: any) => {
+    let url = URL.createObjectURL(uploadFile.raw)
+    const { data } = await upload(uploadFile.raw)
+    newAdminInfo.value.avatarURL = url
+    //newAdminInfo.value.avatarURL = data.data.imgURL
+
 }
 // 关闭前提醒
 const beforeClose = () => {
@@ -51,9 +77,20 @@ const cancel = () => {
     drawer.value = false
     ElMessage.info('已取消保存')
 }
-const confirm = () => {
+const confirm = async () => {
     drawer.value = false
+    // 发送保存请求
+    const res = await updateAdminApi(newAdminInfo.value.name, newAdminInfo.value.avatarURL, newAdminInfo.value.message)
+
+    
+    if (res.status !== 200) {
+        ElMessage.error(res.data.msg||'保存失败')
+        return
+    }
+    newAdminInfo.value={}
     ElMessage.success('保存成功')
+
+
 }
 const title = ref(['我的审核', '我的添加', '我的修改'])
 
@@ -159,14 +196,25 @@ const getAnimalList: any = async (ids: string) => {
                 </div>
                 <!-- 编辑抽屉 -->
                 <el-drawer v-model="drawer" :direction="direction" :before-close="beforeClose">
-                    <template #title>
+                    <template #header>
                         <div style="font-size: 20px;">
                             修改信息<el-icon style="margin-left: 5px;">
                                 <EditPen />
                             </el-icon>
                         </div>
                     </template>
-                    <span>Hi, there!</span>
+                    <div>
+                        管理员姓名<el-input v-model="newAdminInfo.name" type="text" placeholder="请输入管理员姓名" />
+                        留言内容<el-input v-model="newAdminInfo.content" type="textarea" :rows="4" placeholder="请输入留言内容" />
+                        修改头像
+                        <el-upload class="avatar-uploader" action="#" :show-file-list="false" :http-request="uploadImg"
+                            :before-upload="beforeImgUpload" :on-change="imgChange">
+                            <img v-if="newAdminInfo.avatarURL" :src="newAdminInfo.avatarURL" class="avatar" width="140px" />
+                            <el-icon v-else class="avatar-uploader-icon">
+                                <Plus />
+                            </el-icon>
+                        </el-upload>
+                    </div>
                     <template #footer>
                         <div style="flex: auto">
                             <el-button @click="cancel">取消修改</el-button>
@@ -320,6 +368,12 @@ const getAnimalList: any = async (ids: string) => {
           justify-content: start;
           flex-direction: column;
           align-items: start;
+
+          .avatar-uploader .avatar {
+              width: 178px;
+              height: 178px;
+              display: block;
+          }
       }
   }
 </style>

@@ -201,7 +201,6 @@ const uploadImg = async (rawFile: any) => {
     let newImg = { uid: rawFile.file.uid, url: data.data.imgURL }
     addAnimalForm.value.imgURL.push(newImg)
     console.log(addAnimalForm.value.imgURL)
-
 }
 
 // 添加请求

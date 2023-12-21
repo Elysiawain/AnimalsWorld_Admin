@@ -27,6 +27,24 @@ export const getAdminListApi = () => {
     })
 }
 /**
+ * 修改管理员个人信息
+ * @param name 
+ * @param avatarURL 
+ * @param message 
+ * @returns 
+ */
+export const updateAdminApi=(name:string,avatarURL:string,message:string)=>{
+return request({
+    url:'/admin',
+    method:'put',
+    params:{
+        name,
+        avatarURL,
+        message
+    }
+})
+}
+/**
  * 修改账号（管理员）信息
  * @param adminID 
  * @param adminName 
