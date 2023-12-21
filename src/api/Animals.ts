@@ -52,3 +52,14 @@ export const getAnimalByName = (name:string) => {
         method: 'get',
     })
 }
+/**
+ * 获取动物根据id数据
+ * @param id 
+ * @returns 
+ */
+export const getAnimalById = (id:string) => {
+    return request({
+        url: `/AW/${id}`,
+        method: 'get',
+    })
+}

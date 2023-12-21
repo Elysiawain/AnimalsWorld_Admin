@@ -8,13 +8,15 @@ const router = useRouter()
 const ruleFormRef = ref<FormInstance>()
 const adminStore = useAdminStore()
 const adminLogin = async () => {
-    const { data: { data } } = await adminLoginApi(ruleForm.admin, ruleForm.pass)
-    if (data.code === '') {
+    const { data } = await adminLoginApi(ruleForm.admin, ruleForm.pass)
+    if (data.code !== '1') {
+        console.log(data)
+        
         ElMessage.error(data.msg || '登录失败！')
         return
     }
     // 本地持久化
-    adminStore.setAdminInfo(data)
+    adminStore.setAdminInfo(data.data)
     ElMessage.success('登录成功')
     router.push('/')
 }
@@ -50,7 +52,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
     if (!formEl) return
     formEl.validate(async (valid) => {
         if (valid) {
-            // TODO 发送登录请求
+            //  发送登录请求
             await adminLogin()
         } else {
             ElMessage.error('请输入正确的用户名和密码')

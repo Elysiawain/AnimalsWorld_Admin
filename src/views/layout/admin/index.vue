@@ -121,7 +121,7 @@ const viewDetail = async (row: Admin) => {
           总审核数
           <svg style="width: 20px;color:#85ce61;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" data-v-ea893728=""><path fill="currentColor" d="M805.504 320 640 154.496V320zM832 384H576V128H192v768h640zM160 64h480l256 256v608a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32m318.4 582.144 180.992-180.992L704.64 510.4 478.4 736.64 320 578.304l45.248-45.312z"></path></svg>
         </div>
-          <div style="font-size: 28px">${adminDetail.audit}</div>
+          <div style="font-size: 28px">${adminDetail.audit.length}</div>
         </div>
         <div
           style="
@@ -137,7 +137,7 @@ const viewDetail = async (row: Admin) => {
           总添加数
           <svg style="width: 20px ;color:#66b1ff;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" data-v-ea893728=""><path fill="currentColor" d="M160 832h704a32 32 0 1 1 0 64H160a32 32 0 1 1 0-64m384-578.304V704h-64V247.296L237.248 490.048 192 444.8 508.8 128l316.8 316.8-45.312 45.248z"></path></svg>
         </div>
-          <div style="font-size: 28px">${adminDetail.addCount}</div>
+          <div style="font-size: 28px">${adminDetail.addCount.length}</div>
         </div>
         <div
           style="
@@ -167,7 +167,7 @@ const viewDetail = async (row: Admin) => {
               ></path>
             </svg>
           </div>
-          <div style="font-size: 28px">${adminDetail.editCount}</div>
+          <div style="font-size: 28px">${adminDetail.editCount.length}</div>
         </div>
       </div>
     </div>`,

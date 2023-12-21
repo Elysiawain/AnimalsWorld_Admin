@@ -1,16 +1,24 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, markRaw } from 'vue'
 import { useAdminStore } from '@/stores/admin'
 import { getAdminDetailApi } from '@/api/Admin'
 import { Warning, } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import AdminDetail from '@/components/AdminDetail.vue'
+import { getAnimalById } from '@/api/Animals'
 const adminStore = useAdminStore()
 // 获取管理员详细信息
 const adminDetail = ref<any>({})
+// 获取对应的动物信息
+const auditAnimalList = ref<any>([])
+const addAnimalList = ref<any>([])
+const editAnimalList = ref<any>([])
 const getAdminDetail = async () => {
     const { data: { data } } = await getAdminDetailApi(adminStore.admin.adminID)
     adminDetail.value = data.admin
+    auditAnimalList.value = await getAnimalList(adminDetail.value.audit.toString()) // 获取审核动物列表
+    addAnimalList.value = await getAnimalList(adminDetail.value.addCount.toString()) // 获取新增动物列表
+    editAnimalList.value = await getAnimalList(adminDetail.value.editCount.toString()) // 获取修改动物列表
 
 }
 onMounted(() => getAdminDetail())
@@ -23,9 +31,15 @@ const editAdmin = () => {
 }
 // 关闭前提醒
 const beforeClose = () => {
-    ElMessageBox.confirm('确认关闭？')
+    ElMessageBox.confirm('当前数据未保存确认关闭？', '提示',
+        {
+
+            confirmButtonText: '确认',
+            cancelButtonText: '取消',
+            type: 'warning',
+            icon: markRaw(Warning)
+        })
         .then(() => {
-            ElMessage.success('关闭成功！')
             drawer.value = false
             return true
         })
@@ -33,7 +47,24 @@ const beforeClose = () => {
             // catch error
         })
 }
-const title=ref(['我的审核','我的添加','我的修改'])
+const cancel = () => {
+    drawer.value = false
+    ElMessage.info('已取消保存')
+}
+const confirm = () => {
+    drawer.value = false
+    ElMessage.success('保存成功')
+}
+const title = ref(['我的审核', '我的添加', '我的修改'])
+
+/**
+ * 根据动物id获取对应动物数据
+ * @param ids 
+ */
+const getAnimalList: any = async (ids: string) => {
+    const res = await getAnimalById(ids)
+    return res.data.data.AWList
+}
 </script>
 
 <template>
@@ -45,75 +76,81 @@ const title=ref(['我的审核','我的添加','我的修改'])
                     <div class="info-name">{{ adminStore.admin.name }}</div>
                     <div class="info-ID"> 账号ID：{{ adminDetail.adminID }}</div>
                     <div class="info-message">{{ adminDetail.message }}</div>
-
                 </div>
                 <div class="info-statistic">
-                    <el-row :gutter="16">
-                        <el-col :span="8">
-                            <div class="statistic-card">
-                                <el-statistic :value="adminDetail.audit">
-
-                                    <template #title>
-                                        <div style="display: inline-flex; align-items: center;">
+                    <el-row :gutter="60">
+                        <!-- <el-col :span="8"> -->
+                        <div class="statistic-card">
+                            <el-statistic :value="adminDetail.audit?.length" style=" margin-right: 20px;">
+                                <template #title>
+                                    <div style="display: inline-flex; align-items: center;font-size: 20px;">
+                                        <div style="display: flex; align-items: center;">
                                             总审核数
                                             <el-tooltip effect="dark" content="该账号审核用户上传数据总数" placement="top">
 
-                                                <el-icon style="margin-left: 4px; color: #85ce61;" :size="12">
+                                                <el-icon style="margin-left: 4px; color: #85ce61;" :size="16">
                                                     <Warning />
                                                 </el-icon>
                                             </el-tooltip>
                                         </div>
-                                    </template>
-                                    <template #suffix>
-                                        <el-icon style="vertical-align: -0.125em;color: #85ce61;">
-                                            <DocumentChecked />
-                                        </el-icon>
-                                    </template>
-                                </el-statistic>
-                            </div>
-                        </el-col>
-                        <el-col :span="8">
-                            <div class="statistic-card">
-                                <el-statistic :value="adminDetail.addCount">
-                                    <template #title>
-                                        <div style="display: inline-flex; align-items: center">
+                                    </div>
+                                </template>
+                                <template #suffix>
+                                    <el-icon style="vertical-align: -0.125em;color: #85ce61;">
+                                        <DocumentChecked />
+                                    </el-icon>
+                                </template>
+                            </el-statistic>
+                        </div>
+                        <!-- </el-col> -->
+                        <!-- <el-col :span="8"> -->
+                        <div class="statistic-card">
+                            <el-statistic :value="adminDetail.addCount?.length" style=" margin-right: 20px;">
+                                <template #title>
+                                    <div style="display: inline-flex; align-items: center;font-size: 20px;">
+                                        <div style="display: flex; align-items: center;">
+
                                             总添加数
                                             <el-tooltip effect="dark" content="当前账号添加动物总数" placement="top">
-                                                <el-icon style="margin-left: 4px;color: #85ce61;" :size="12">
+                                                <el-icon style="margin-left: 4px;color: #85ce61;" :size="16">
                                                     <Warning />
                                                 </el-icon>
                                             </el-tooltip>
                                         </div>
-                                    </template>
-                                    <template #suffix>
-                                        <el-icon style="vertical-align: -0.125em;color: #409EFF;">
-                                            <Upload />
-                                        </el-icon>
-                                    </template>
-                                </el-statistic>
-                            </div>
-                        </el-col>
-                        <el-col :span="8">
-                            <div class="statistic-card">
-                                <el-statistic :value="adminDetail.addCount">
-                                    <template #title>
-                                        <div style="display: inline-flex; align-items: center;">
+                                    </div>
+                                </template>
+                                <template #suffix>
+                                    <el-icon style="vertical-align: -0.125em;color: #409EFF;">
+                                        <Upload />
+                                    </el-icon>
+                                </template>
+                            </el-statistic>
+                        </div>
+                        <!-- </el-col> -->
+                        <!-- <el-col :span="8"> -->
+                        <div class="statistic-card">
+                            <el-statistic :value="adminDetail.addCount?.length" style=" margin-right: 20px;">
+                                <template #title>
+                                    <div style="display: inline-flex; align-items: center;font-size: 20px;">
+                                        <div style="display: flex; align-items: center;">
+
                                             总修改数
                                             <el-tooltip effect="dark" content="当前账号修改动物总数" placement="top">
-                                                <el-icon style="margin-left: 4px;color: #85ce61;" :size="12">
+                                                <el-icon style="margin-left: 4px;color: #85ce61;" :size="16">
                                                     <Warning />
                                                 </el-icon>
                                             </el-tooltip>
                                         </div>
-                                    </template>
-                                    <template #suffix>
-                                        <el-icon style="vertical-align: -0.125em;color: #85ce61;">
-                                            <Edit />
-                                        </el-icon>
-                                    </template>
-                                </el-statistic>
-                            </div>
-                        </el-col>
+                                    </div>
+                                </template>
+                                <template #suffix>
+                                    <el-icon style="vertical-align: -0.125em;color: #85ce61;">
+                                        <Edit />
+                                    </el-icon>
+                                </template>
+                            </el-statistic>
+                        </div>
+                        <!-- </el-col> -->
                     </el-row>
                 </div>
                 <div class="admin-edit" @click="editAdmin()">编辑<el-icon>
@@ -121,16 +158,29 @@ const title=ref(['我的审核','我的添加','我的修改'])
                     </el-icon>
                 </div>
                 <!-- 编辑抽屉 -->
-                <el-drawer v-model="drawer" title="修改管理员信息" :direction="direction" :before-close="beforeClose">
+                <el-drawer v-model="drawer" :direction="direction" :before-close="beforeClose">
+                    <template #title>
+                        <div style="font-size: 20px;">
+                            修改信息<el-icon style="margin-left: 5px;">
+                                <EditPen />
+                            </el-icon>
+                        </div>
+                    </template>
                     <span>Hi, there!</span>
+                    <template #footer>
+                        <div style="flex: auto">
+                            <el-button @click="cancel">取消修改</el-button>
+                            <el-button type="primary" @click="confirm">保存修改</el-button>
+                        </div>
+                    </template>
                 </el-drawer>
             </div>
         </div>
 
         <div class="content data">
-            <AdminDetail :titie="title[0]"></AdminDetail>
-            <AdminDetail :titie="title[1]"></AdminDetail>
-            <AdminDetail :titie="title[2]"></AdminDetail>
+            <AdminDetail :titie="title[0]" :animal-data="auditAnimalList"></AdminDetail>
+            <AdminDetail :titie="title[1]" :animal-data="addAnimalList"></AdminDetail>
+            <AdminDetail :titie="title[2]" :animal-data="editAnimalList"></AdminDetail>
         </div>
     </div>
 </template>
@@ -264,7 +314,7 @@ const title=ref(['我的审核','我的添加','我的修改'])
       }
 
       .data {
-        height: max-content;
+          height: max-content;
           padding: 2% 0% 2% 2%;
           display: flex;
           justify-content: start;
