@@ -33,16 +33,17 @@ export const getAdminListApi = () => {
  * @param message 
  * @returns 
  */
-export const updateAdminApi=(name:string,avatarURL:string,message:string)=>{
-return request({
-    url:'/admin',
-    method:'put',
-    params:{
-        name,
-        avatarURL,
-        message
-    }
-})
+export const updateAdminApi = (name: string, avatarURL: string, message: string, bgcImgURL: string) => {
+    return request({
+        url: '/admin',
+        method: 'put',
+        params: {
+            name,
+            avatarURL,
+            message,
+            bgcImgURL
+        }
+    })
 }
 /**
  * 修改账号（管理员）信息
@@ -55,7 +56,7 @@ export const updateAdminStatusApi = (adminID: string, status: number) => {
     return request({
         url: '/admin/status',
         method: 'put',
-        params: {  
+        params: {
             adminID,
             status
         }
@@ -93,11 +94,11 @@ export const getAdminDetailApi = (adminID: string) => {
  * 管理员端获取用户得数据
  * @returns 
  */
-export const getUserApi = (page:Number,pageSize:Number,userID:String,userName:String) => {
+export const getUserApi = (page: Number, pageSize: Number, userID: String, userName: String) => {
     return request({
         url: '/admin/user',
         method: 'get',
-        data:{
+        data: {
             page,
             pageSize,
             userID,
@@ -111,13 +112,46 @@ export const getUserApi = (page:Number,pageSize:Number,userID:String,userName:St
  * @param status 
  * @returns 
  */
-export const updaeUserStatusApi = (userID:string,status:number) => {
+export const updaeUserStatusApi = (userID: string, status: number) => {
     return request({
         url: '/admin/user/status',
         method: 'put',
         params: {
             userID,
             status
+        }
+    })
+}
+/**
+ * 获取审核数据（1：已审核，0：待审核）
+ * @param page 
+ * @param pageSize 
+ * @param status 
+ * @returns 
+ */
+export const getAuditListApi = (page: Number, pageSize: Number, status: number) => {
+    return request({
+        url: `/admin/userUpload/${status}`,
+        method: 'get',
+        params: {
+            page,
+            pageSize,
+        }
+    })
+}
+/**
+ * 修改审核状态信息
+ * @param userID 
+ * @param status 
+ * @returns 
+ */
+export const updateAuditApi = (auditID:string,adminID: string, status: number) => {
+    return request({
+        url: `/admin/userUpload/${status}`,
+        method: 'put',
+        params: {
+            auditID,
+            adminID,
         }
     })
 }

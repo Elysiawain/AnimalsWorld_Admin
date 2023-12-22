@@ -81,7 +81,7 @@ const loadMore = async () => {
     // 拼接数组
     animalList.value = [...animalList.value, ...data.AWList]
 }
-const debounceLoadMore = debounce(loadMore, 500, { leading: false })
+const debounceLoadMore = debounce(loadMore, 300, { leading: false })
 // 添加新动物
 const drawer_title = ref<any>('添加新动物')
 const drawer = ref<boolean>(false)

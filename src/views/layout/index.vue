@@ -227,7 +227,7 @@ onMounted(() => train.value = (activeName.value - 1) * 11.4 + 15)
             .train {
                 width: 100%;
                 height: 50px;
-                background-color: $titleFontColor;
+                background-color: #66b1ff;
                 position: absolute;
                 //top: 15%;
                 transition: all 0.3s linear;

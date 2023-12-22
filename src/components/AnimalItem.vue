@@ -31,7 +31,7 @@ const showDrawer=()=>{
 
 <style scoped lang="scss">
 .container {
-    background-color: $bgcColor;
+    //background-color: $bgcColor;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -51,7 +51,7 @@ const showDrawer=()=>{
         box-shadow: 0 15px 30px rgb(0 0 0 / 0.2);
     }
     .animal-name{
-       margin-bottom:5%
+       margin-bottom:12%
     }
     .title-img {
         width: 100%;

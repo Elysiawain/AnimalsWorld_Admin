@@ -30,20 +30,25 @@ onMounted(() => getAdminDetail())
 const drawer = ref(false)
 const direction = ref('rtl')
 const newAdminInfo = ref<any>({
-    name: '',
+    name: adminStore.admin.name,
     bgcImgURL: '',
-    avatarURL: '',
-    message: '',
+    avatarURL: adminStore.admin.avatarURL,
+    message: adminDetail.value.message,
 })
 
 const editAdmin = () => {
     drawer.value = true
 }
+const checkImg = ref<any>(true)
 const beforeImgUpload: UploadProps['beforeUpload'] = (rawFile) => {
+    console.log(1)
+
     if (rawFile.size / 1024 / 1024 > 2) {
         ElMessage.error('上传图片大小不能超过 2MB!')
+        checkImg.value = false
         return false
     }
+    checkImg.value = true
     return true
 }
 const uploadImg = () => {
@@ -53,7 +58,6 @@ const imgChange = async (uploadFile: any) => {
     const { data } = await upload(uploadFile.raw)
     newAdminInfo.value.avatarURL = url
     //newAdminInfo.value.avatarURL = data.data.imgURL
-
 }
 // 关闭前提醒
 const beforeClose = () => {
@@ -67,6 +71,7 @@ const beforeClose = () => {
         })
         .then(() => {
             drawer.value = false
+            editBgc.value = false
             return true
         })
         .catch(() => {
@@ -78,16 +83,20 @@ const cancel = () => {
     ElMessage.info('已取消保存')
 }
 const confirm = async () => {
-    drawer.value = false
-    // 发送保存请求
-    const res = await updateAdminApi(newAdminInfo.value.name, newAdminInfo.value.avatarURL, newAdminInfo.value.message)
-
-    
-    if (res.status !== 200) {
-        ElMessage.error(res.data.msg||'保存失败')
+    if (!newAdminInfo.value.name || !newAdminInfo.value.avatarURL || !newAdminInfo.value.message) {
+        ElMessage.error('请将信息填写完整')
         return
     }
-    newAdminInfo.value={}
+    drawer.value = false
+    // 发送保存请求
+    const res = await updateAdminApi(newAdminInfo.value.name, newAdminInfo.value.avatarURL, newAdminInfo.value.message, '')
+
+
+    if (res.status !== 200) {
+        ElMessage.error(res.data.msg || '保存失败')
+        return
+    }
+    newAdminInfo.value = {}
     ElMessage.success('保存成功')
 
 
@@ -102,12 +111,49 @@ const getAnimalList: any = async (ids: string) => {
     const res = await getAnimalById(ids)
     return res.data.data.AWList
 }
+//修改背景
+const editBgc = ref<any>(false)
+const editBgcImg = () => {
+    editBgc.value = true //打开抽屉
+}
+const confirmBgc = async () => {
+    if (!newAdminInfo.value.bgcImgURL) {
+        ElMessage.error('请选择背景图片!')
+        return
+    }
+    // 发送保存请求
+    const res = await updateAdminApi('', '', '', newAdminInfo.value.bgcImgURL)
+    editBgc.value = false//关闭抽屉
+    if (res.status !== 200) {
+        ElMessage.error(res.data.msg || '保存失败')
+        return
+    }
+    newAdminInfo.value = {}
+    ElMessage.success('修改成功')
+}
+const cancelBgc = () => {
+
+    editBgc.value = false //关闭抽屉
+}
+const bgcImgChange = async (uploadFile: any) => {
+    beforeImgUpload(uploadFile)
+
+    if (!checkImg.value) {
+        return
+    }
+    let url = URL.createObjectURL(uploadFile.raw)
+    console.log(url)
+    const { data } = await upload(uploadFile.raw)
+    newAdminInfo.value.bgcImgURL = url
+    //newAdminInfo.value.bgcImgURL = data.data.imgURL
+}
 </script>
 
 <template>
     <div class="container">
         <div class="content">
             <div class="info" :style="{ 'backgroundImage': 'url(' + adminDetail.bgcImgURL + ')' }">
+                <div class="edit-bgcImg" @click="editBgcImg">修改背景</div>
                 <div class="admin-detail">
                     <div class="info-avatar"><img :src="adminStore.admin.avatarURL" alt="" width="100px"></div>
                     <div class="info-name">{{ adminStore.admin.name }}</div>
@@ -203,12 +249,15 @@ const getAnimalList: any = async (ids: string) => {
                             </el-icon>
                         </div>
                     </template>
-                    <div>
-                        管理员姓名<el-input v-model="newAdminInfo.name" type="text" placeholder="请输入管理员姓名" />
-                        留言内容<el-input v-model="newAdminInfo.content" type="textarea" :rows="4" placeholder="请输入留言内容" />
+                    <div class="edit-form" style="display: flex;flex-direction: column;">
+                        管理员姓名<el-input v-model="newAdminInfo.name" type="text" placeholder="请输入管理员姓名"
+                            style="width: 300px;margin:10px 0px 10px 0px;" />
+                        留言内容<el-input v-model="newAdminInfo.content" type="textarea" :rows="4" placeholder="请输入留言内容"
+                            style="width: 300px;margin:10px 0px 10px 0px;" />
                         修改头像
-                        <el-upload class="avatar-uploader" action="#" :show-file-list="false" :http-request="uploadImg"
-                            :before-upload="beforeImgUpload" :on-change="imgChange">
+                        <el-upload style="width: 300px;margin:10px 0px 10px 0px;" class="avatar-uploader" action="#"
+                            :show-file-list="false" :http-request="uploadImg" :before-upload="beforeImgUpload"
+                            :on-change="imgChange">
                             <img v-if="newAdminInfo.avatarURL" :src="newAdminInfo.avatarURL" class="avatar" width="140px" />
                             <el-icon v-else class="avatar-uploader-icon">
                                 <Plus />
@@ -219,6 +268,35 @@ const getAnimalList: any = async (ids: string) => {
                         <div style="flex: auto">
                             <el-button @click="cancel">取消修改</el-button>
                             <el-button type="primary" @click="confirm">保存修改</el-button>
+                        </div>
+                    </template>
+                </el-drawer>
+
+
+                <!-- 修改背景 -->
+                <el-drawer v-model="editBgc" :direction="direction" :before-close="beforeClose">
+                    <template #header>
+                        <div style="font-size: 20px;">
+                            修改背景<el-icon style="margin-left: 5px;">
+                                <EditPen />
+                            </el-icon>
+                        </div>
+                    </template>
+                    <div class="edit-form" style="display: flex;flex-direction: column;">
+
+                        <el-upload style="width: 300px;margin:10px 0px 10px 0px;" class="avatar-uploader" action="#"
+                            :show-file-list="false" :http-request="uploadImg" :before-upload="beforeImgUpload"
+                            :on-change="bgcImgChange">
+                            <img v-if="newAdminInfo.bgcImgURL" :src="newAdminInfo.bgcImgURL" class="avatar" width="140px" />
+                            <el-icon v-else class="avatar-uploader-icon">
+                                <Plus />
+                            </el-icon>
+                        </el-upload>
+                    </div>
+                    <template #footer>
+                        <div style="flex: auto">
+                            <el-button @click="cancelBgc">取消修改</el-button>
+                            <el-button type="primary" @click="confirmBgc">保存修改</el-button>
                         </div>
                     </template>
                 </el-drawer>
@@ -261,6 +339,18 @@ const getAnimalList: any = async (ids: string) => {
               background-size: 100% 100%;
               background-position: center;
               position: relative;
+
+              .edit-bgcImg {
+                  position: absolute;
+                  top: 5%;
+                  left: 2%;
+                  font-size: larger;
+                  font-weight: bold;
+
+                  &:hover {
+                      color: #6b6d71;
+                  }
+              }
 
               .info-statistic {
                   display: flex;
@@ -369,10 +459,15 @@ const getAnimalList: any = async (ids: string) => {
           flex-direction: column;
           align-items: start;
 
-          .avatar-uploader .avatar {
-              width: 178px;
-              height: 178px;
-              display: block;
+          .edit-form {
+              display: flex;
+              flex-direction: column;
+
+              .avatar-uploader .avatar {
+                  width: 178px;
+                  height: 178px;
+                  display: block;
+              }
           }
       }
   }
