@@ -94,7 +94,7 @@ export const getAdminDetailApi = (adminID: string) => {
  * 管理员端获取用户得数据
  * @returns 
  */
-export const getUserApi = (page: Number, pageSize: Number, userID: String, userName: String) => {
+export const getUserApi = (page: Number, pageSize: Number, userID: String|undefined, userName: String) => {
     return request({
         url: '/admin/user',
         method: 'get',

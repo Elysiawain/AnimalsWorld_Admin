@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AdminDetail: typeof import('./src/components/AdminDetail.vue')['default']
+    AnimalDetail: typeof import('./src/components/AnimalDetail.vue')['default']
     AnimalItem: typeof import('./src/components/AnimalItem.vue')['default']
     Drawer: typeof import('./src/components/Drawer.vue')['default']
     ElAffix: typeof import('element-plus/es')['ElAffix']

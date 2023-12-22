@@ -3,6 +3,7 @@ import { ref, watch, onMounted } from 'vue'
 import { getAuditListApi, updateAuditApi } from '@/api/Admin'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { audit } from '@/pojo/audit'
+import AnimalDetail from '@/components/AnimalDetail.vue'
 const loading = ref(false)
 const pageData = ref<any>({
     page: 1,
@@ -11,6 +12,7 @@ const pageData = ref<any>({
 })
 const total = ref(0)
 const auditData = ref<audit[]>([]) //审核数据
+const rowIndex = ref<number>(0)
 //  发送请求获取审核数据
 const getAuditList = async () => {
     const res = await getAuditListApi(pageData.value.page, pageData.value.pageSize, pageData.value.status)
@@ -32,8 +34,8 @@ const handleEdit = async (index: number, row: any, status: number) => {
             ElMessage.error(res.data.msg || '修改失败')
             return
         }
-        if(index===-1){
-            dialogVisible.value=false
+        if (index === -1) {
+            dialogVisible.value = false
         }
         // 修改成功后刷新页面
         //getAdminList() */
@@ -52,10 +54,14 @@ watch(pageData.value, () => {
 })
 // 弹出详情
 const dialogVisible = ref(false)
-const currentRow=ref<any>({})
+const currentRow = ref<any>({})
 const viewDetail = (row: any) => {
     dialogVisible.value = true
-    currentRow.value=row
+    currentRow.value = row
+    console.log(row)
+    // 获取当前行的索引
+    rowIndex.value = auditData.value.findIndex((item: any) => item.auditID === row.auditID)
+
 
 }
 </script>
@@ -64,7 +70,7 @@ const viewDetail = (row: any) => {
     <div v-loading="loading" class="container">
         <el-table :data="auditData" stripe style="width: 100%" v-if="auditData?.length >= 1" @row-click="viewDetail">
 
-            <el-table-column label="上传用户" prop="uploadUser" />
+            <el-table-column label="上传用户ID" prop="uploadUser" />
             <el-table-column label="动物详情" class="detail">
                 点击查看
             </el-table-column>
@@ -83,9 +89,9 @@ const viewDetail = (row: any) => {
             <el-table-column align="center" label="操作">
                 <template #default="scope">
                     <el-button size="small" type='success' plain
-                        @click="handleEdit(scope.$index, scope.row, 1)">通过</el-button>
+                        @click="handleEdit(scope.$index, scope.row, 1)">通过<el-icon><DocumentChecked /></el-icon></el-button>
                     <el-button size="small" type='danger' plain
-                        @click="handleEdit(scope.$index, scope.row, 0)">不通过</el-button>
+                        @click="handleEdit(scope.$index, scope.row, 0)">不通过<el-icon><DocumentDelete /></el-icon></el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -97,14 +103,14 @@ const viewDetail = (row: any) => {
             </el-pagination>
         </div>
         <!-- 弹出审核详情框 -->
-        <el-dialog v-model="dialogVisible" title="上传详情" width="50%" center>
-            <span>详情</span>
+        <el-dialog v-model="dialogVisible" title="上传详情" width="60%" center>
+            <AnimalDetail :animas-data="auditData[rowIndex].animalsData" :upload-user="auditData[rowIndex].uploadUser" :upload-time="auditData[rowIndex].uploadTime" />
             <template #footer>
                 <span class="dialog-footer">
-                    <el-button type="success" @click="handleEdit(-1,currentRow,1)" plain>
-                        通过·
+                    <el-button type="success" @click="handleEdit(-1, currentRow, 1)" plain>
+                        通过
                     </el-button>
-                    <el-button @click="handleEdit(-1,currentRow,0)" type="danger" plain>不通过</el-button>
+                    <el-button @click="handleEdit(-1, currentRow, 0)" type="danger" plain>不通过</el-button>
                 </span>
             </template>
         </el-dialog>
