@@ -22,6 +22,7 @@ const getAuditList = async () => {
 
 onMounted(() => getAuditList())
 // 修改审核状态
+
 const handleEdit = async (index: number, row: any, status: number) => {
     // 弹出确认框
     await ElMessageBox.confirm('确定通过该条数据审核吗？', '提示', {
@@ -68,7 +69,7 @@ const viewDetail = (row: any) => {
 
 <template>
     <div v-loading="loading" class="container">
-        <el-table :data="auditData" stripe style="width: 100%" v-if="auditData?.length >= 1" @row-click="viewDetail">
+        <el-table :data="auditData" stripe  style="width: 100%;color: #6C6E72;" v-if="auditData?.length >= 1" @row-click="viewDetail">
 
             <el-table-column label="上传用户ID" prop="uploadUser" />
             <el-table-column label="动物详情" class="detail">
@@ -89,9 +90,9 @@ const viewDetail = (row: any) => {
             <el-table-column align="center" label="操作">
                 <template #default="scope">
                     <el-button size="small" type='success' plain
-                        @click="handleEdit(scope.$index, scope.row, 1)">通过<el-icon><DocumentChecked /></el-icon></el-button>
+                        @click.stop="handleEdit(scope.$index, scope.row, 1)">通过<el-icon><DocumentChecked /></el-icon></el-button>
                     <el-button size="small" type='danger' plain
-                        @click="handleEdit(scope.$index, scope.row, 0)">不通过<el-icon><DocumentDelete /></el-icon></el-button>
+                        @click.stop="handleEdit(scope.$index, scope.row, 0)">不通过<el-icon><CloseBold /></el-icon></el-button>
                 </template>
             </el-table-column>
         </el-table>

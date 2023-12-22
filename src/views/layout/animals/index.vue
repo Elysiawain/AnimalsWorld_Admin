@@ -246,7 +246,7 @@ v-infinite-scroll
                 <el-menu :default-active="nav_index" class="el-menu-demo" mode="horizontal" background-color="#545c64"
                     text-color="#fff" active-text-color="rgb(213,253,157)" @select="handleSelect">
                     <el-menu-item index="1">全部</el-menu-item>
-                    <el-sub-menu index="2">
+                    <el-sub-menu index="2" style="padding-bottom: 10px;">
                         <template #title>{{ classificationList[clIndex] }}</template>
                         <el-menu-item v-for="(item, index) in classificationList" :index="'2-' + index" :key="item">{{ item
                         }}</el-menu-item>
