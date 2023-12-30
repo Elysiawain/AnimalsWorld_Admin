@@ -141,9 +141,9 @@ onMounted(() => train.value = (activeName.value - 1) * 11.4 + 15)
                 <el-main>
                     <router-view v-slot="{ Component }">
                         <transition name="fade" mode="out-in" appear>
-                            <keep-alive>
+                            <!-- <keep-alive> -->
                                 <component :is="Component" />
-                            </keep-alive>
+                            <!-- </keep-alive> -->
                         </transition>
                     </router-view>
                 </el-main>

@@ -25,7 +25,7 @@ onMounted(() => getAuditList())
 
 const handleEdit = async (index: number, row: any, status: number) => {
     // 弹出确认框
-    await ElMessageBox.confirm('确定通过该条数据审核吗？', '提示', {
+    await ElMessageBox.confirm(status===1?'确定通过该条数据审核吗？':'确定不通过该条数据审核吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',

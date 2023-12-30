@@ -22,7 +22,6 @@ const getUploadUser = async () => {
 }
 onMounted(() => getUploadUser())
 watch(props, () =>{
-    console.log('监视器')
     getUploadUser()
 })
 </script>
@@ -44,7 +43,7 @@ watch(props, () =>{
             <div><span>描述：</span>{{ animasData?.description }}</div>
             <div><span>分类：</span>{{ animasData?.classification }}</div>
             <div><span>分布：</span>{{ animasData?.distribution }}</div>
-            <div><span>保护级别：</span>{{ animasData?.protectLevel }}</div>
+            <div><span>保护级别：</span>{{ animasData?.protectionLevel }}</div>
             <div><span>饮食：</span>{{ animasData?.diet }}</div>
             <div><span>繁殖方式：</span>{{ animasData?.breeding }}</div>
             <div><span>天敌：</span>{{ animasData?.predator }}</div>

@@ -4,7 +4,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Search, Plus } from '@element-plus/icons-vue'
-import { getAnimalListApi, getAnimalClassificationApi, addAnimalApi, getAnimalByName } from '@/api/Animals'
+import { getAnimalListApi, getAnimalClassificationApi, addAnimalApi, getAnimalByName, suggestAnimalApi } from '@/api/Animals'
 import type { Animal } from '@/pojo/Animal'
 import type { UploadProps, UploadUserFile } from 'element-plus'
 import { upload } from '@/api/Common'
@@ -21,11 +21,17 @@ const route = useRoute()
 // 初始化数据
 const getAnimalList = async () => {
     loading.value = true
-    const { data: { data } } = await getAnimalListApi(page.value, pageSize.value, classification.value)
-    animalList.value = data.AWList
-    total.value = data.total
-    loading.value = false
-    return data.AWList
+    try {
+        const { data: { data } } = await getAnimalListApi(page.value, pageSize.value, classification.value)
+        animalList.value = data.AWList
+        total.value = data.total
+        loading.value = false
+        return data.AWList
+    } catch (err) {
+        ElMessage.error('获取动物列表失败')
+        loading.value = false
+        return
+    }
 }
 onMounted(() => getAnimalList())
 
@@ -57,14 +63,37 @@ const getAnimalClassification = async () => {
 getAnimalClassification()
 // 搜索框
 const search = ref('')
-const startSeach = async () => {
+const startSearch = async () => {
     //发送请求，根据输入框搜索，
+
     const res = await getAnimalByName(search.value)
     console.log(res)
     search.value = ''
     // 重新渲染页面
     getAnimalList()
 }
+
+/**
+ * 搜索建议
+ */
+const suggestData = ref<any>([])
+const suggest = async () => {
+    if (search.value === '') {
+        suggestData.value = []
+        return
+    }
+    // 发送请求
+    const { data: { data } } = await suggestAnimalApi(search.value)
+    suggestData.value = data.dataList
+}
+
+const debounceSuggest = debounce(suggest, 200,{ leading: false })
+
+const searchBySuggest = (keyword: string) => {
+    search.value = keyword
+    startSearch()
+}
+
 // 触底加载
 const disabled = ref(false)
 const loadMore = async () => {
@@ -238,7 +267,6 @@ const close = () => {
 
 }
 </script>
-v-infinite-scroll
 <template>
     <div class="container" ref="container" id="container">
         <el-affix :offset="0">
@@ -272,7 +300,16 @@ v-infinite-scroll
 
                 </el-menu>
                 <el-input v-model="search" class="w-50 m-2 search-box" placeholder="搜索" :prefix-icon="Search"
-                    @change="startSeach()" />
+                    @change="startSearch()" @input="debounceSuggest" @blur="suggestData = ''" />
+                
+                <!-- 搜索建议 -->
+                <div class="suggest-box" v-if="suggestData.length > 1">
+                    <div v-for="(item, index) in suggestData" :key="index" class="suggest-item"
+                        @click="searchBySuggest(item)">
+                        {{ item }}
+                    </div>
+                </div>
+
             </div>
         </el-affix>
 
@@ -382,11 +419,41 @@ v-infinite-scroll
         align-items: center;
         padding-right: 3%;
         border-radius: 8px;
-        overflow: hidden;
+        // overflow: hidden;
+        position: relative;
+
+        .suggest-box {
+            position: absolute;
+            width: 23%;
+            right: 4%;
+            top: 76%;
+            z-index: 99;
+            display: flex;
+            flex-direction: column;
+            background-color: #FFFFFF;
+            border-radius: 5px;
+            
+            .suggest-item {
+                padding-left: 5%;
+                width: 100%;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                color: #6C6E72;
+                cursor: pointer;
+
+                &:hover {
+                    background-color: #E5EAF3;
+                    color: #000;
+                }
+            }
+        }
 
         .el-menu-demo {
             flex: 3;
             height: 100%;
+            border-radius: 3px;
+            overflow: hidden;
         }
 
         .search-box {
@@ -421,5 +488,4 @@ v-infinite-scroll
 
         }
     }
-}
-</style>
+}</style>

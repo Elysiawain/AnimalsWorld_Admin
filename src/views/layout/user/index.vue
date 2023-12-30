@@ -16,10 +16,17 @@ const userData = ref<User[]>([]) //用户数据
 //  发送请求获取用户数据
 const getUserList = async () => {
     loading.value = true
-    const { data: { data } } = await getUserApi(pageData.value.page, pageData.value.pageSize, pageData.value.userID, pageData.value.userName)
-    setTimeout(() => { loading.value = false }, 200)
-    userData.value = data.userList
-    total.value = data.total
+    try {
+        const { data: { data } } = await getUserApi(pageData.value.page, pageData.value.pageSize, pageData.value.userID, pageData.value.userName)
+        loading.value = false
+        userData.value = data.userList
+        total.value = data.total
+    } catch (error) {
+        ElMessage.error('获取用户列表失败')
+        loading.value = false
+        return
+    }
+
 }
 
 
@@ -61,10 +68,10 @@ const handleEdit = async (index: number, row: User) => {
 // 分页
 const pageDisabled = ref(false)
 // 监听每页最大数和页数的变化
-watch(pageData.value,() => {
+watch(pageData.value, () => {
     // 发送请求
     getUserList()
-    })
+})
 </script>
 
 <template>

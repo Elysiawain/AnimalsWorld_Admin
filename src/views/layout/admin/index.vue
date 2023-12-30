@@ -10,10 +10,16 @@ const loading = ref(false)
 // TODO 发送请求获取管理员数据
 const adminStore = useAdminStore()
 const getAdminList = async () => {
-    loading.value = true
+  loading.value = true
+  try {
     const { data: { data } } = await getAdminListApi()
-    setTimeout(() => { loading.value = false }, 200)
+    loading.value = false
     adminData.value = data.adminList
+  } catch (error) {
+    ElMessage.error('获取管理员列表失败')
+    loading.value = false
+    return
+  }
 }
 
 const adminData = ref<Admin[]>([])
@@ -21,50 +27,50 @@ onMounted(() => getAdminList())
 // 页面内动态过滤
 const search = ref('')
 const filterTableData = computed(() =>
-    adminData.value.filter(
-        (data) =>
-            !search.value ||
-            data.name.toLowerCase().includes(search.value.toLowerCase())
-    )
+  adminData.value.filter(
+    (data) =>
+      !search.value ||
+      data.name.toLowerCase().includes(search.value.toLowerCase())
+  )
 )
 // 修改账号的状态（只有超级管理员可以）
 const handleEdit = async (index: number, row: Admin) => {
 
-    if (adminStore.admin.adminID != 1) {
-        ElMessage.error('当前登录账号权限不足！')
-        return
-    }
-    adminData.value.splice(index, 1, { ...row, status: row.status == 1 ? 0 : 1 })
-    // 发送修改请求
-    let newStatus = row.status == 1 ? 0 : 1
-    await updateAdminStatusApi(row.adminID, newStatus)
-    // 修改成功后刷新页面
-    //getAdminList()
+  if (adminStore.admin.adminID != 1) {
+    ElMessage.error('当前登录账号权限不足！')
+    return
+  }
+  adminData.value.splice(index, 1, { ...row, status: row.status == 1 ? 0 : 1 })
+  // 发送修改请求
+  let newStatus = row.status == 1 ? 0 : 1
+  await updateAdminStatusApi(row.adminID, newStatus)
+  // 修改成功后刷新页面
+  //getAdminList()
 }
 // 删除该账号（只有超级管理员可以）
 const handleDelete = async (index: number, row: Admin) => {
 
-    if (adminStore.admin.adminID != 1) {
-        ElMessage.error('当前登录账号权限不足！')
-        return
-    }
-    const res = await deleteAdminApi(row.adminID)
-    if (res.data.code === 0) {
-        ElMessage.error('当前登录账号权限不足！')
-        return
-    }
+  if (adminStore.admin.adminID != 1) {
+    ElMessage.error('当前登录账号权限不足！')
+    return
+  }
+  const res = await deleteAdminApi(row.adminID)
+  if (res.data.code === 0) {
+    ElMessage.error('当前登录账号权限不足！')
+    return
+  }
 }
 // 点击查看详情
 const viewDetail = async (row: Admin) => {
-    loading.value = true
-    // 1、获取当前行的管理员id
-    const { data: { data } } = await getAdminDetailApi(row.adminID)
-    let adminDetail: any = data.admin
-    loading.value = false
-    // 2、根据id获取管理员详情
-    // 3、将管理员详情展示到弹出框
-    ElMessageBox.alert(
-        ` <div
+  loading.value = true
+  // 1、获取当前行的管理员id
+  const { data: { data } } = await getAdminDetailApi(row.adminID)
+  let adminDetail: any = data.admin
+  loading.value = false
+  // 2、根据id获取管理员详情
+  // 3、将管理员详情展示到弹出框
+  ElMessageBox.alert(
+    ` <div
         style="
         display: flex;
         justify-content: end;
@@ -171,52 +177,51 @@ const viewDetail = async (row: Admin) => {
         </div>
       </div>
     </div>`,
-        '详情',
-        {
-            dangerouslyUseHTMLString: true,
-            center: true,
-        }
-    )
+    '详情',
+    {
+      dangerouslyUseHTMLString: true,
+      center: true,
+    }
+  )
 
 }
 
 </script>
 
 <template>
-    <div v-loading="loading">
-        <el-table :data="filterTableData" stripe style="width: 100%" v-if="adminData.length >= 1" @row-click="viewDetail">
+  <div v-loading="loading">
+    <el-table :data="filterTableData" stripe style="width: 100%" v-if="adminData.length >= 1" @row-click="viewDetail">
 
-            <el-table-column label="管理员" prop="name" />
-            <el-table-column label="头像" prop="avatarURL">
-                <template #default="scope">
-                    <el-image :src="scope.row.avatarURL" style="width: 25%;" />
-                </template>
-            </el-table-column>
-            <el-table-column label="创建时间" prop="createTime" />
-            <el-table-column label="账号状态" prop="status">
-                <!-- 使用插槽动态判断账号状态 -->
-                <template #default="scope">
-                    <el-tag effect="light" :type="scope.row.status === 1 ? 'success' : 'danger'">
-                        {{ scope.row.status === 1 ? '正常' : '禁用中' }}
-                    </el-tag>
-                </template>
-            </el-table-column>
+      <el-table-column label="管理员" prop="name" />
+      <el-table-column label="头像" prop="avatarURL">
+        <template #default="scope">
+          <el-image :src="scope.row.avatarURL" style="width: 25%;" />
+        </template>
+      </el-table-column>
+      <el-table-column label="创建时间" prop="createTime" />
+      <el-table-column label="账号状态" prop="status">
+        <!-- 使用插槽动态判断账号状态 -->
+        <template #default="scope">
+          <el-tag effect="light" :type="scope.row.status === 1 ? 'success' : 'danger'">
+            {{ scope.row.status === 1 ? '正常' : '禁用中' }}
+          </el-tag>
+        </template>
+      </el-table-column>
 
-            <el-table-column align="right">
-                <template #header>
-                    <el-input v-model="search" class="w-50 m-2" placeholder="搜索" :prefix-icon="Search"
-                        style="width: 80%;" />
-                </template>
-                <template #default="scope">
-                    <el-button size="small" :type="scope.row.status == 1 ? 'primary' : 'warning'" plain
-                        @click="handleEdit(scope.$index, scope.row)">{{ scope.row.status === 1 ? '禁用' : '启用' }}</el-button>
-                    <el-button size="small" type="danger" :icon="Delete" circle plain
-                        @click="handleDelete(scope.$index, scope.row)"></el-button>
-                </template>
-            </el-table-column>
-        </el-table>
-        <el-empty description="这里什么也没有哟~" v-else />
-    </div>
+      <el-table-column align="right">
+        <template #header>
+          <el-input v-model="search" class="w-50 m-2" placeholder="搜索" :prefix-icon="Search" style="width: 80%;" />
+        </template>
+        <template #default="scope">
+          <el-button size="small" :type="scope.row.status == 1 ? 'primary' : 'warning'" plain
+            @click="handleEdit(scope.$index, scope.row)">{{ scope.row.status === 1 ? '禁用' : '启用' }}</el-button>
+          <el-button size="small" type="danger" :icon="Delete" circle plain
+            @click="handleDelete(scope.$index, scope.row)"></el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-empty description="这里什么也没有哟~" v-else />
+  </div>
 </template>
 
 <style scoped></style>

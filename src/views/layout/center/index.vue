@@ -17,12 +17,16 @@ const auditAnimalList = ref<any>([])
 const addAnimalList = ref<any>([])
 const editAnimalList = ref<any>([])
 const getAdminDetail = async () => {
-    const { data: { data } } = await getAdminDetailApi(adminStore.admin.adminID)
-    adminDetail.value = data.admin
-    auditAnimalList.value = await getAnimalList(adminDetail.value.audit.toString()) // 获取审核动物列表
-    addAnimalList.value = await getAnimalList(adminDetail.value.addCount.toString()) // 获取新增动物列表
-    editAnimalList.value = await getAnimalList(adminDetail.value.editCount.toString()) // 获取修改动物列表
-
+    try {
+        const { data: { data } } = await getAdminDetailApi(adminStore.admin.adminID)
+        adminDetail.value = data.admin
+        auditAnimalList.value = await getAnimalList(adminDetail.value.audit.toString()) // 获取审核动物列表
+        addAnimalList.value = await getAnimalList(adminDetail.value.addCount.toString()) // 获取新增动物列表
+        editAnimalList.value = await getAnimalList(adminDetail.value.editCount.toString()) // 获取修改动物列表
+    } catch (error: any) {
+        ElMessage.error('获取数据失败！')
+        return
+    }
 }
 onMounted(() => getAdminDetail())
 

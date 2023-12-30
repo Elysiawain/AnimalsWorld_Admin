@@ -63,3 +63,15 @@ export const getAnimalById = (id:string) => {
         method: 'get',
     })
 }
+
+/**
+ * 搜索提示
+ * @param keyword 
+ * @returns 
+ */
+export const suggestAnimalApi = (keyword:string) => {
+    return request({
+        url: `/AW/suggest/${keyword}`,
+        method: 'get',
+    })
+}
