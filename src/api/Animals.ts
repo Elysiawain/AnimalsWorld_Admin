@@ -71,7 +71,10 @@ export const getAnimalById = (id:string) => {
  */
 export const suggestAnimalApi = (keyword:string) => {
     return request({
-        url: `/AW/suggest/${keyword}`,
+        url: "/suggest",
         method: 'get',
+        params:{
+            keyword
+        }
     })
 }

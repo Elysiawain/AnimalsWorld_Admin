@@ -15,9 +15,17 @@ const auditData = ref<audit[]>([]) //审核数据
 const rowIndex = ref<number>(0)
 //  发送请求获取审核数据
 const getAuditList = async () => {
-    const res = await getAuditListApi(pageData.value.page, pageData.value.pageSize, pageData.value.status)
-    auditData.value = res.data.data.auditList
-    total.value = res.data.data.total
+    try {
+        const res = await getAuditListApi(pageData.value.page, pageData.value.pageSize, pageData.value.status)
+        auditData.value = res.data.data.auditList
+        total.value = res.data.data.total
+        loading.value = false
+    } catch (error) {
+        ElMessage.error('获取审核数据失败')
+        loading.value = false
+        return
+    }
+
 }
 
 onMounted(() => getAuditList())
@@ -25,7 +33,7 @@ onMounted(() => getAuditList())
 
 const handleEdit = async (index: number, row: any, status: number) => {
     // 弹出确认框
-    await ElMessageBox.confirm(status===1?'确定通过该条数据审核吗？':'确定不通过该条数据审核吗？', '提示', {
+    await ElMessageBox.confirm(status === 1 ? '确定通过该条数据审核吗？' : '确定不通过该条数据审核吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -69,7 +77,8 @@ const viewDetail = (row: any) => {
 
 <template>
     <div v-loading="loading" class="container">
-        <el-table :data="auditData" stripe  style="width: 100%;color: #6C6E72;" v-if="auditData?.length >= 1" @row-click="viewDetail">
+        <el-table :data="auditData" stripe style="width: 100%;color: #6C6E72;" v-if="auditData?.length >= 1"
+            @row-click="viewDetail">
 
             <el-table-column label="上传用户ID" prop="uploadUser" />
             <el-table-column label="动物详情" class="detail">
@@ -90,9 +99,13 @@ const viewDetail = (row: any) => {
             <el-table-column align="center" label="操作">
                 <template #default="scope">
                     <el-button size="small" type='success' plain
-                        @click.stop="handleEdit(scope.$index, scope.row, 1)">通过<el-icon><DocumentChecked /></el-icon></el-button>
+                        @click.stop="handleEdit(scope.$index, scope.row, 1)">通过<el-icon>
+                            <DocumentChecked />
+                        </el-icon></el-button>
                     <el-button size="small" type='danger' plain
-                        @click.stop="handleEdit(scope.$index, scope.row, 0)">不通过<el-icon><CloseBold /></el-icon></el-button>
+                        @click.stop="handleEdit(scope.$index, scope.row, 0)">不通过<el-icon>
+                            <CloseBold />
+                        </el-icon></el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -105,7 +118,8 @@ const viewDetail = (row: any) => {
         </div>
         <!-- 弹出审核详情框 -->
         <el-dialog v-model="dialogVisible" title="上传详情" width="60%" center>
-            <AnimalDetail :animas-data="auditData[rowIndex].animalsData" :upload-user="auditData[rowIndex].uploadUser" :upload-time="auditData[rowIndex].uploadTime" />
+            <AnimalDetail :animas-data="auditData[rowIndex].animalsData" :upload-user="auditData[rowIndex].uploadUser"
+                :upload-time="auditData[rowIndex].uploadTime" />
             <template #footer>
                 <span class="dialog-footer">
                     <el-button type="success" @click="handleEdit(-1, currentRow, 1)" plain>
@@ -131,5 +145,4 @@ const viewDetail = (row: any) => {
         display: flex;
         justify-content: flex-end;
     }
-}
-</style>
+}</style>

@@ -9,6 +9,7 @@ import AdminDetail from '@/components/AdminDetail.vue'
 import { getAnimalById } from '@/api/Animals'
 import { upload } from '@/api/Common'
 
+const loading=ref(false)
 const adminStore = useAdminStore()
 // 获取管理员详细信息
 const adminDetail = ref<any>({})
@@ -17,14 +18,17 @@ const auditAnimalList = ref<any>([])
 const addAnimalList = ref<any>([])
 const editAnimalList = ref<any>([])
 const getAdminDetail = async () => {
+    loading.value=true
     try {
         const { data: { data } } = await getAdminDetailApi(adminStore.admin.adminID)
         adminDetail.value = data.admin
         auditAnimalList.value = await getAnimalList(adminDetail.value.audit.toString()) // 获取审核动物列表
         addAnimalList.value = await getAnimalList(adminDetail.value.addCount.toString()) // 获取新增动物列表
         editAnimalList.value = await getAnimalList(adminDetail.value.editCount.toString()) // 获取修改动物列表
+        loading.value=false
     } catch (error: any) {
         ElMessage.error('获取数据失败！')
+        loading.value=false
         return
     }
 }
@@ -154,7 +158,7 @@ const bgcImgChange = async (uploadFile: any) => {
 </script>
 
 <template>
-    <div class="container">
+    <div class="container" v-loading="loading">
         <div class="content">
             <div class="info" :style="{ 'backgroundImage': 'url(' + adminDetail.bgcImgURL + ')' }">
                 <div class="edit-bgcImg" @click="editBgcImg">修改背景</div>

@@ -12,6 +12,7 @@ import { isValidAddAnimalForm } from '@/utils/Check'
 import { debounce } from '@/utils/debounce'
 
 const loading = ref(false)
+const bottomLoading = ref(false) //底部加载
 const animalList = ref<any>([])
 const total = ref(0)
 const page = ref(1)
@@ -87,11 +88,22 @@ const suggest = async () => {
     suggestData.value = data.dataList
 }
 
-const debounceSuggest = debounce(suggest, 200,{ leading: false })
+const debounceSuggest = debounce(suggest, 200, { leading: false })
 
 const searchBySuggest = (keyword: string) => {
     search.value = keyword
     startSearch()
+}
+
+const highlightKeyword = (keyword: string, text: string): string => {
+    //返回一个处理后的字符串
+    /**
+     * 参数1：正则表达式
+     * 参数2：替换成的内容
+     * 'g':   全局匹配
+     */
+    return text.replace(new RegExp(keyword, 'g'), '<span style="color: #66b1ff">$&</span>')
+    //return text.replace(new RegExp(keyword, 'g'),  `<span style="color: #66b1ff">${keyword}</span>`) //第二种写法
 }
 
 // 触底加载
@@ -107,10 +119,15 @@ const loadMore = async () => {
         disabled.value = true
         return
     }
+    bottomLoading.value = false
     // 拼接数组
     animalList.value = [...animalList.value, ...data.AWList]
 }
-const debounceLoadMore = debounce(loadMore, 300, { leading: false })
+const debounceLoadMore = debounce(loadMore, 200, { leading: false })
+const startLoadMore = () => {
+    bottomLoading.value = true
+    debounceLoadMore()
+}
 // 添加新动物
 const drawer_title = ref<any>('添加新动物')
 const drawer = ref<boolean>(false)
@@ -266,9 +283,11 @@ const close = () => {
     addAnimalForm.value.imgURL = []
 
 }
+
+
 </script>
 <template>
-    <div class="container" ref="container" id="container">
+    <div class="container" ref="container" id="container" v-loading="loading">
         <el-affix :offset="0">
             <div class="animals-nav">
                 <el-menu :default-active="nav_index" class="el-menu-demo" mode="horizontal" background-color="#545c64"
@@ -300,20 +319,20 @@ const close = () => {
 
                 </el-menu>
                 <el-input v-model="search" class="w-50 m-2 search-box" placeholder="搜索" :prefix-icon="Search"
-                    @change="startSearch()" @input="debounceSuggest" @blur="suggestData = ''" />
-                
+                    @change="startSearch()" @input="debounceSuggest" @focus="debounceSuggest" @blur="suggestData = ''" />
+
                 <!-- 搜索建议 -->
                 <div class="suggest-box" v-if="suggestData.length > 1">
-                    <div v-for="(item, index) in suggestData" :key="index" class="suggest-item"
-                        @click="searchBySuggest(item)">
-                        {{ item }}
+                    <div v-for="(item, index) in suggestData.slice(0, 10)" :key="index" class="suggest-item"
+                        @click="searchBySuggest(item)" v-html="highlightKeyword(search,item)">
+
                     </div>
                 </div>
 
             </div>
         </el-affix>
 
-        <div v-if="animalList.length > 1" class="animals-container" v-infinite-scroll="debounceLoadMore"
+        <div v-if="animalList.length > 1" class="animals-container" v-infinite-scroll="startLoadMore"
             :infinite-scroll-disabled="disabled">
             <AnimalItem v-for="(item) in animalList" :key="item" :animalData="item" :drawer="drawer"
                 @update-drawer="handleDrawerUpdate" @init-animal="initAnimal" class="animal-item" v-loading="loading" />
@@ -377,7 +396,16 @@ const close = () => {
                 </template>
             </el-drawer>
         </div>
+
         <el-empty description="这里什么也没有哟~" v-else />
+        <div style="display: flex;
+        justify-content: center;
+        align-items:center;
+        height: 100px;
+        background-color: rgb(247,247,247);">
+            <div class="bottom-loading" v-if="bottomLoading">
+            </div>
+        </div>
     </div>
 </template>
 
@@ -430,9 +458,12 @@ const close = () => {
             z-index: 99;
             display: flex;
             flex-direction: column;
-            background-color: #FFFFFF;
+            background-color: #ffffff;
             border-radius: 5px;
-            
+            transition: all 0.2s linear;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+
             .suggest-item {
                 padding-left: 5%;
                 width: 100%;
@@ -488,4 +519,28 @@ const close = () => {
 
         }
     }
-}</style>
+
+    .bottom-loading {
+        width: 2.5em;
+        height: 3em;
+        border: 3px solid transparent;
+        border-top-color: $asideFontColor;
+        border-bottom-color: $titleFontColor;
+        border-radius: 50%;
+        animation: spin-stretch 2s ease infinite;
+
+        @keyframes spin-stretch {
+            50% {
+                transform: rotate(360deg) scale(0.4, 0.33);
+                border-width: 8px;
+            }
+
+            100% {
+                transform: rotate(720deg) scale(1, 1);
+                border-width: 3px;
+            }
+        }
+
+    }
+}
+</style>
