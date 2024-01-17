@@ -1,12 +1,10 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
-export const useCounterStore = defineStore('counter', () => {
-  const count = ref(0)
-  const doubleCount = computed(() => count.value * 2)
-  function increment() {
-    count.value++
-  }
+export const useCounterStore = defineStore('badgeNum', () => {
+  const badgeNum = ref(0)
+  // 获取和修改
+  const setBadgeNum = (num: number) => (badgeNum.value = num)
 
-  return { count, doubleCount, increment }
+  return { badgeNum,setBadgeNum }
 })

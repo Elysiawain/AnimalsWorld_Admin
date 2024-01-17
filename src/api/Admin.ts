@@ -155,3 +155,13 @@ export const updateAuditApi = (auditID:string,adminID: string, status: number) =
         }
     })
 }
+/**
+ * 获取待处理数量
+ * @returns 
+ */
+export const getBadgeNumApi = () => {
+    return request({
+        url: '/admin/userUpload/badgeNum',
+        method: 'get',
+    })
+}

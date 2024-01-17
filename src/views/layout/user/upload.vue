@@ -2,6 +2,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { getAuditListApi, updateAuditApi } from '@/api/Admin'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useCounterStore } from '@/stores/counter'
 import type { audit } from '@/pojo/audit'
 import AnimalDetail from '@/components/AnimalDetail.vue'
 const loading = ref(false)
@@ -30,7 +31,8 @@ const getAuditList = async () => {
 
 onMounted(() => getAuditList())
 // 修改审核状态
-
+//徽标数字提醒
+const countStore=useCounterStore()
 const handleEdit = async (index: number, row: any, status: number) => {
     // 弹出确认框
     await ElMessageBox.confirm(status === 1 ? '确定通过该条数据审核吗？' : '确定不通过该条数据审核吗？', '提示', {
@@ -47,8 +49,9 @@ const handleEdit = async (index: number, row: any, status: number) => {
             dialogVisible.value = false
         }
         // 修改成功后刷新页面
-        //getAdminList() */
-        ElMessage.success('审核通过修改完成')
+        getAuditList()
+        countStore.setBadgeNum(total.value)
+        ElMessage.success('操作成功！')
     }).catch(() => {
         ElMessage.info('已取消修改')
     })
@@ -145,4 +148,5 @@ const viewDetail = (row: any) => {
         display: flex;
         justify-content: flex-end;
     }
-}</style>
+}
+</style>
