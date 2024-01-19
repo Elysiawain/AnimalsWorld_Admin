@@ -6,13 +6,9 @@ import { Warning, Plus } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { UploadProps } from 'element-plus'
 import AdminDetail from '@/components/AdminDetail.vue'
-import Drawer from '@/components/Drawer.vue'
 import { getAnimalById } from '@/api/Animals'
 import { upload } from '@/api/Common'
-import { useAnimalStore } from '@/stores/animal'
-import type { Animal } from '@/pojo/Animal'
 
-const animalStore = useAnimalStore()
 const loading = ref(false)
 const adminStore = useAdminStore()
 // 获取管理员详细信息
@@ -160,7 +156,10 @@ const bgcImgChange = async (uploadFile: any) => {
     //newAdminInfo.value.bgcImgURL = data.data.imgURL
 }
 
-
+// 关闭抽屉重新刷新
+const closeEditDrawer = () => {
+    getAdminDetail()
+}
 </script>
 
 <template>
@@ -319,9 +318,9 @@ const bgcImgChange = async (uploadFile: any) => {
         </div>
 
         <div class="content data">
-            <AdminDetail :titie="title[0]" :animal-data="auditAnimalList"></AdminDetail>
-            <AdminDetail :titie="title[1]" :animal-data="addAnimalList"></AdminDetail>
-            <AdminDetail :titie="title[2]" :animal-data="editAnimalList"></AdminDetail>
+            <AdminDetail :titie="title[0]" :animal-data="auditAnimalList" @close-edit-drawer="closeEditDrawer"></AdminDetail>
+            <AdminDetail :titie="title[1]" :animal-data="addAnimalList" @close-edit-drawer="closeEditDrawer"></AdminDetail>
+            <AdminDetail :titie="title[2]" :animal-data="editAnimalList" @close-edit-drawer="closeEditDrawer"></AdminDetail>
 
         </div>
     </div>

@@ -142,7 +142,6 @@ const confirmClick = async () => {
 // 添加结束，重新渲染页面
 const close = () => {
     imageList.value = []
-    location.reload()
     emit('closeDrawer')
 
 }

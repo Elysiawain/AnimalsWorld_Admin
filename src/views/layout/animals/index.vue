@@ -4,11 +4,9 @@ import Drawer from '@/components/Drawer.vue'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Search, Plus } from '@element-plus/icons-vue'
-import { getAnimalListApi, getAnimalClassificationApi, addAnimalApi, getAnimalByName, suggestAnimalApi } from '@/api/Animals'
+import { Search } from '@element-plus/icons-vue'
+import { getAnimalListApi, getAnimalClassificationApi, getAnimalByName, suggestAnimalApi } from '@/api/Animals'
 import type { Animal } from '@/pojo/Animal'
-import type { UploadProps, UploadUserFile } from 'element-plus'
-import { upload } from '@/api/Common'
 import {useAnimalStore}from '@/stores/animal'
 import { debounce } from '@/utils/debounce'
 
@@ -179,6 +177,7 @@ const addAnimalForm = ref<Animal>({
 
 const closeDrawer = () => {
     drawer.value = false
+    getAnimalList()
     addAnimalForm.value = {}
     addAnimalForm.value.imgURL = []
 }

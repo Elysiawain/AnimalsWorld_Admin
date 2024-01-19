@@ -53,11 +53,12 @@ const addAnimalForm = ref<Animal>({
     lifestyle: '',
     predator: '',
 })
-
+const emit=defineEmits(['closeEditDrawer'])
 const closeDrawer = () => {
     drawer.value = false
     addAnimalForm.value = {}
     addAnimalForm.value.imgURL = []
+    emit('closeEditDrawer')
 }
 </script>
 
