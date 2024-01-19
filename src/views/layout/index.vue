@@ -70,7 +70,7 @@ onMounted(() => getBadgeNum())
 <template>
     <div class="common-layout">
         <el-container>
-            <el-aside width="200px">
+            <el-aside width="200px" style="overflow-y: hidden;">
                 <!-- 滑动轨道 -->
                 <div class="track" :style="trainLocation">
                     <div class="train"></div>

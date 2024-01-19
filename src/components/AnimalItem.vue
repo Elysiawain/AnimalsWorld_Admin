@@ -9,7 +9,6 @@ const props=defineProps({
 const emit=defineEmits(['updateDrawer','initAnimal']) // 定义事件
 const showDrawer=()=>{
     emit('updateDrawer',!props.drawer)
-    console.log("子组件数据：")
     
     const animalData=props.animalData
     console.log(animalData)
@@ -22,8 +21,8 @@ const showDrawer=()=>{
 
 <template>
     <div class="container">
-        <div class="title-img" :style="{ backgroundImage: `url(${animalData?.imgURL[0].url})` }">
-            <div class="edit"><span @click="showDrawer" ><el-icon><Edit /></el-icon>编辑 </span></div>
+        <div class="title-img" :style="{ backgroundImage: `url(${animalData?.imgURL[0]?.url ||' '})` }">
+            <div class="edit"><span @click="showDrawer" ><img src="@/assets/edit.png" alt="" width="20px" style="margin-right: 5px; line-height:20px ;"> 编辑 </span></div>
         </div>
         <div class="animal-name">{{ animalData?.name }}</div>
     </div>
@@ -31,7 +30,7 @@ const showDrawer=()=>{
 
 <style scoped lang="scss">
 .container {
-    //background-color: $bgcColor;
+    background-color: white;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -84,9 +83,10 @@ const showDrawer=()=>{
                 cursor: pointer;
                 transition: all 0.2s linear;
                 width: 100%;
+                font-size: 20px;
                 background-image: linear-gradient(to top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
                 &:hover{
-                    color: white;
+                    color: #bbbfff;
                 }
             }
         }

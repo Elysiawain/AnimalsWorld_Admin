@@ -31,7 +31,7 @@ export function isValidAddAnimalForm(addAnimalForm: Animal) {
     } */
  
     // 检查 protectionLevel 属性是否为空
-    if (addAnimalForm.protectLevel.trim() === '') {
+    if (addAnimalForm.protectionLevel.trim() === '') {
         return false;
     }
  

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AnimalItem from '@/components/AnimalItem.vue'
+import Drawer from '@/components/Drawer.vue'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -8,7 +9,7 @@ import { getAnimalListApi, getAnimalClassificationApi, addAnimalApi, getAnimalBy
 import type { Animal } from '@/pojo/Animal'
 import type { UploadProps, UploadUserFile } from 'element-plus'
 import { upload } from '@/api/Common'
-import { isValidAddAnimalForm } from '@/utils/Check'
+import {useAnimalStore}from '@/stores/animal'
 import { debounce } from '@/utils/debounce'
 
 const loading = ref(false)
@@ -16,12 +17,13 @@ const bottomLoading = ref(false) //底部加载
 const animalList = ref<any>([])
 const total = ref(0)
 const page = ref(1)
-const pageSize = ref(10)
+const pageSize = ref(20)
 const classification = ref<string>('')
 const route = useRoute()
 // 初始化数据
 const getAnimalList = async () => {
     loading.value = true
+
     try {
         const { data: { data } } = await getAnimalListApi(page.value, pageSize.value, classification.value)
         animalList.value = data.AWList
@@ -53,12 +55,13 @@ const handleSelect = async (key: string) => {
 let options: [] = []
 const clIndex = ref<number>(0)
 const classificationList = ref<[]>([])
+const animalStore=useAnimalStore()
 const getAnimalClassification = async () => {
     loading.value = true
     const res = await getAnimalClassificationApi()
     classificationList.value = res.data.data.classificationList
     options = classificationList.value
-
+    animalStore.setClassfication(options)
     loading.value = false
 }
 getAnimalClassification()
@@ -109,11 +112,12 @@ const highlightKeyword = (keyword: string, text: string): string => {
 // 触底加载
 const disabled = ref(false)
 const loadMore = async () => {
-    if (route.name !== 'about') {
+    
+    if (route.name !== 'about' || page.value * pageSize.value > total.value) {
         return
     }
-    const { data: { data } } = await getAnimalListApi(1, 10, '哺乳动物')
-    // page++
+    const { data: { data } } = await getAnimalListApi(page.value, pageSize.value, classification.value)
+    page.value++
 
     if (data.AWList.length == 0) {
         disabled.value = true
@@ -135,15 +139,9 @@ const drawer = ref<boolean>(false)
 const handleDrawerUpdate = (newDrawerStatus: any) => {
     drawer.value = newDrawerStatus
 }
-//子组件初始化抽屉
-const imageUrlList = ref<UploadUserFile[]>([{
-    name: '',
-    url: ''
-}])
 const initAnimal = (animalData: Animal) => {
     addAnimalForm.value = animalData
     // 清空
-    imageUrlList.value = []
     drawer_title.value = '编辑动物'
     addAnimalForm.value.imgURL.forEach(img => {
         let initImg = {
@@ -152,14 +150,12 @@ const initAnimal = (animalData: Animal) => {
         }
         initImg.name = img.uid
         initImg.url = img.url
-        imageUrlList.value.push(initImg)
     })
 
 
 }
 // 打开抽屉
 const open = () => {
-    imageUrlList.value = []
     drawer_title.value = '添加新动物'
     drawer.value = true
 }
@@ -174,116 +170,18 @@ const addAnimalForm = ref<Animal>({
     description: '',
     classification: '',
     distribution: '',
-    protectLevel: '',
+    protectionLevel: '',
     diet: '',
     breeding: '',
     lifestyle: '',
     predator: '',
 })
-// 保护级别
-const protectionLevel = [
-    {
-        value: '1',
-        label: '一级保护'
-    },
-    {
-        value: '2',
-        label: '二级保护'
-    },
-    {
-        value: '3',
-        label: '三级保护'
-    },
-    {
-        value: '4',
-        label: '普通'
-    }
-]
-// 繁殖方式
-const breedList = [
-    {
-        value: '1',
-        label: '胎生'
-    },
-    {
-        value: '2',
-        label: '卵生'
-    },
-    {
-        value: '3',
-        label: '无性'
-    }
-]
-// 图片上传
 
-const dialogImageUrl = ref('')
-const dialogVisible = ref(false)
-// 取消已上传图片
-const handleRemove: UploadProps['onRemove'] = (uploadFile) => {
-    // 清除对应的图片
-    const index = addAnimalForm.value.imgURL.findIndex(item => item.uid === uploadFile.raw?.uid.toString())
-    addAnimalForm.value.imgURL.splice(index, 1)
-    console.log(addAnimalForm.value.imgURL)
-
-}
-const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
-    dialogImageUrl.value = uploadFile.url!
-    console.log(uploadFile.url)
-    dialogVisible.value = true
-}
-const beforeUpload: UploadProps['beforeUpload'] = (rawFile) => {
-    if (rawFile.type !== 'image/jpeg' && rawFile.type !== 'image/png') {
-        ElMessage.error('图片格式必须为jpg/png格式')
-        return false
-    } else if (rawFile.size / 1024 / 1024 > 2) {
-        ElMessage.error('上传图片大小必须小于2MB!')
-        return false
-    }
-    return true
-}
-const uploadImg = async (rawFile: any) => {
-    const { data } = await upload(rawFile)
-    let newImg = { uid: rawFile.file.uid, url: data.data.imgURL }
-    addAnimalForm.value.imgURL.push(newImg)
-    console.log(addAnimalForm.value.imgURL)
-}
-
-// 添加请求
-const addAnimal = async () => {
-    const res = await addAnimalApi(addAnimalForm.value)
-    if (res.data.code === '1') {
-        ElMessage.success('添加成功')
-        return true
-    }
-    ElMessage.error('添加失败')
-    return false
-}
-const cancelClick = () => {
-    console.log("取消")
+const closeDrawer = () => {
     drawer.value = false
-}
-const confirmClick = async () => {
-    console.log("确认")
-    // 发送前校验
-    const isValid = await isValidAddAnimalForm(addAnimalForm.value)
-    if (!isValid) {
-        ElMessage.error('请填写完整数据')
-        return
-    }
-    // 发送添加请求
-    const res = await addAnimal()
-    console.log(res)
-
-    drawer.value = false
-}
-// 添加结束，重新渲染页面
-const close = () => {
-    // 1、判断添加或修改内容是否经保存，没保存提醒
     addAnimalForm.value = {}
     addAnimalForm.value.imgURL = []
-
 }
-
 
 </script>
 <template>
@@ -292,7 +190,7 @@ const close = () => {
             <div class="animals-nav">
                 <el-menu :default-active="nav_index" class="el-menu-demo" mode="horizontal" background-color="#545c64"
                     text-color="#fff" active-text-color="rgb(213,253,157)" @select="handleSelect">
-                    <el-menu-item index="1">全部</el-menu-item>
+                    <el-menu-item index="1">全部</el-menu-item>  
                     <el-sub-menu index="2" style="padding-bottom: 10px;">
                         <template #title>{{ classificationList[clIndex] }}</template>
                         <el-menu-item v-for="(item, index) in classificationList" :index="'2-' + index" :key="item">{{ item
@@ -309,7 +207,15 @@ const close = () => {
                                 <div style="color:rgb(213,253,157) ; font-size: 16px; display:flex;  align-items:center;">
                                     数据总量
                                     <el-icon style="font-size:30px;margin-left: 5px;">
-                                        <svg t="1705468306061" class="icon" viewBox="0 0 1027 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10079" width="200" height="200"><path d="M0 560.56134v-25.569029 25.569029zM1019.565052 448.696836C978.015379 224.967828 799.032172 45.984621 575.303164 1.238819c-25.56903-6.392257-54.334188 12.784515-57.530316 38.353545V458.285222c0 28.765158 22.372901 51.138059 51.138059 51.138059h405.908343c28.765158 0 51.138059-22.372901 51.138059-51.138059-3.196129-3.196129-3.196129-6.392257-6.392257-9.588386z" fill="#D4F2FF" p-id="10080"></path><path d="M898.112162 592.522627h-15.980644c-22.372901 3.196129-41.549673 25.56903-41.549673 47.94193 0-25.56903 15.980643-44.745802 41.549673-47.94193H524.165105c-51.138059 0-92.687732-41.549673-92.687732-92.687732V132.280096c0-28.765158-22.372901-51.138059-51.138059-51.138059h-9.588386C163.002563 129.083967 6.392257 314.459431 0 534.992311v25.569029C6.392257 816.251635 217.336751 1024 476.223175 1024c220.53288 0 405.908344-150.218048 460.242531-357.966413h-3.196129c3.196129-3.196129 3.196129-3.196129 3.196129-6.392258 3.196129-6.392257 3.196129-12.784515 3.196129-19.176772 0-22.372901-15.980643-44.745802-41.549673-47.94193z" fill="#ADE6FE" p-id="10081"></path></svg>
+                                        <svg t="1705468306061" class="icon" viewBox="0 0 1027 1024" version="1.1"
+                                            xmlns="http://www.w3.org/2000/svg" p-id="10079" width="200" height="200">
+                                            <path
+                                                d="M0 560.56134v-25.569029 25.569029zM1019.565052 448.696836C978.015379 224.967828 799.032172 45.984621 575.303164 1.238819c-25.56903-6.392257-54.334188 12.784515-57.530316 38.353545V458.285222c0 28.765158 22.372901 51.138059 51.138059 51.138059h405.908343c28.765158 0 51.138059-22.372901 51.138059-51.138059-3.196129-3.196129-3.196129-6.392257-6.392257-9.588386z"
+                                                fill="#D4F2FF" p-id="10080"></path>
+                                            <path
+                                                d="M898.112162 592.522627h-15.980644c-22.372901 3.196129-41.549673 25.56903-41.549673 47.94193 0-25.56903 15.980643-44.745802 41.549673-47.94193H524.165105c-51.138059 0-92.687732-41.549673-92.687732-92.687732V132.280096c0-28.765158-22.372901-51.138059-51.138059-51.138059h-9.588386C163.002563 129.083967 6.392257 314.459431 0 534.992311v25.569029C6.392257 816.251635 217.336751 1024 476.223175 1024c220.53288 0 405.908344-150.218048 460.242531-357.966413h-3.196129c3.196129-3.196129 3.196129-3.196129 3.196129-6.392258 3.196129-6.392257 3.196129-12.784515 3.196129-19.176772 0-22.372901-15.980643-44.745802-41.549673-47.94193z"
+                                                fill="#ADE6FE" p-id="10081"></path>
+                                        </svg>
                                     </el-icon>
                                 </div>
                             </template>
@@ -324,7 +230,7 @@ const close = () => {
                 <!-- 搜索建议 -->
                 <div class="suggest-box" v-if="suggestData.length > 1">
                     <div v-for="(item, index) in suggestData.slice(0, 10)" :key="index" class="suggest-item"
-                        @click="searchBySuggest(item)" v-html="highlightKeyword(search,item)">
+                        @click="searchBySuggest(item)" v-html="highlightKeyword(search, item)">
 
                     </div>
                 </div>
@@ -336,14 +242,18 @@ const close = () => {
             :infinite-scroll-disabled="disabled">
             <AnimalItem v-for="(item) in animalList" :key="item" :animalData="item" :drawer="drawer"
                 @update-drawer="handleDrawerUpdate" @init-animal="initAnimal" class="animal-item" v-loading="loading" />
-            <!-- 侧边抽屉 -->
-            <el-drawer v-model="drawer" :title="drawer_title" @close="close" size="30%">
+
+            <!-- 侧边抽屉(组件化) -->
+            <Drawer :drawer="drawer" :drawer_title="drawer_title" :add-animal-form="addAnimalForm"
+             :options="options" @close-drawer="closeDrawer"></Drawer>
+             <!-- 侧边抽屉 -->
+<!--             <el-drawer v-model="drawer" :title="drawer_title" @close="close" size="30%">
                 <template #header>
                     <div style="font-size: larger;display:flex;align-items:center;">
                         <img src="@/assets/logoHead.ico" alt="" width="30px" style="margin-right:15px;">
                         {{ drawer_title }}
-                        <el-icon style="margin-left:2px;font-size:20px;">
-                            <Edit />
+                        <el-icon style="margin-left:5px;font-size:20px;">
+                            <img src="@/assets/edit.png" alt="" width="20px" style="margin-right: 5px; line-height:20px ;">
                         </el-icon>
                     </div>
                 </template>
@@ -359,7 +269,7 @@ const close = () => {
                 </div>
                 <div class="pro-level">
                     保护级别：
-                    <el-select v-model="addAnimalForm.protectLevel" clearable placeholder="请选择">
+                    <el-select v-model="addAnimalForm.protectionLevel" clearable placeholder="请选择">
                         <el-option v-for="item in protectionLevel" :key="item.value" :label="item.label"
                             :value="item.value" />
                     </el-select>
@@ -394,7 +304,7 @@ const close = () => {
                         <el-button type="primary" @click="confirmClick">提交</el-button>
                     </div>
                 </template>
-            </el-drawer>
+            </el-drawer> -->
         </div>
 
         <el-empty description="这里什么也没有哟~" v-else />
