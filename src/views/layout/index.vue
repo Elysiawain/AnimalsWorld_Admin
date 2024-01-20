@@ -2,8 +2,8 @@
 import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAdminStore } from '@/stores/admin'
-import { useCounterStore} from '@/stores/counter'
-import {getBadgeNumApi}from '@/api/Admin'
+import { useCounterStore } from '@/stores/counter'
+import { getBadgeNumApi } from '@/api/Admin'
 // 获取当前登录信息
 const adminStore = useAdminStore()
 adminStore.getAdminInfo()
@@ -58,7 +58,7 @@ const trainLocation = computed(() => {
 onMounted(() => train.value = (activeName.value - 1) * 11.4 + 15)
 
 //徽标数字提醒
-const countStore=useCounterStore()
+const countStore = useCounterStore()
 //发送请求获取数量
 const getBadgeNum = async () => {
     const res = await getBadgeNumApi()
@@ -120,10 +120,14 @@ onMounted(() => getBadgeNum())
                     <router-link class="an_route" to="/userUpload" @mouseenter="train = 73"
                         @mouseleave="train = (activeName - 1) * 11.4 + 15">
                         <div :class="{ 'check-active': activeName === 6 }">
-                            <el-badge :hidden="false" :value="countStore.badgeNum" class="mark" :max="99">
-                                <el-icon :class="{ 'icon-active': activeName === 6 }">
-                                    <Document />
-                                </el-icon>
+
+                            <el-icon :class="{ 'icon-active': activeName === 6 }">
+
+                                <Document />
+
+                            </el-icon>
+                            <el-badge :hidden="countStore.badgeNum === 0 ? true : false" :value="countStore.badgeNum"
+                                class="mark" :max="99">
                                 待处理上传
                             </el-badge>
                         </div>
@@ -152,12 +156,12 @@ onMounted(() => getBadgeNum())
                     <router-view v-slot="{ Component }">
                         <transition name="fade" mode="out-in" appear>
                             <!-- <keep-alive> -->
-                                <component :is="Component" />
+                            <component :is="Component" />
                             <!-- </keep-alive> -->
                         </transition>
                     </router-view>
                 </el-main>
-<!--                 <el-footer>
+                <!--                 <el-footer>
                     <p>CreateBy：elysia</p>
                     <p>版权所属：© 2023 爱莉希雅天下第一！</p>
                 </el-footer> -->
