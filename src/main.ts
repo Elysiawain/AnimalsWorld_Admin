@@ -12,8 +12,8 @@ import router from './router'
 
 const app = createApp(App)
 
-app.use(createPinia()) //仓库使用Pinia
 app.use(router)
+app.use(createPinia()) //仓库使用Pinia
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)
 }

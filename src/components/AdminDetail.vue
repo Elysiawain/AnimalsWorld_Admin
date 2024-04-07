@@ -53,7 +53,7 @@ const addAnimalForm = ref<Animal>({
     lifestyle: '',
     predator: '',
 })
-const emit=defineEmits(['closeEditDrawer'])
+const emit = defineEmits(['closeEditDrawer'])
 const closeDrawer = () => {
     drawer.value = false
     addAnimalForm.value = {}
@@ -74,8 +74,8 @@ const closeDrawer = () => {
         </h3>
         <el-divider />
         <div class="detail-item">
-            <AnimalItem v-for="(item) in animalData?.slice(0, limit)" :key="item" :animal-data="item" class="item" 
-            :drawer="drawer" @update-drawer="handleDrawerUpdate" @init-animal="initAnimal"/>
+            <AnimalItem v-for="(item) in animalData?.slice(0, limit)" :key="item" :animal-data="item" class="item"
+                :drawer="drawer" @update-drawer="handleDrawerUpdate" @init-animal="initAnimal" />
 
             <!-- 编辑详情 -->
             <Drawer :drawer="drawer" :drawer_title="drawer_title" :add-animal-form="addAnimalForm"
@@ -126,4 +126,4 @@ const closeDrawer = () => {
         }
     }
 }
-</style>
+</style>@/interface/Animal

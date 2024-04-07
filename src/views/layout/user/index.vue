@@ -111,12 +111,13 @@ watch(pageData.value, () => {
 
             <el-table-column align="right">
                 <template #header>
-                    <el-input v-model="search" class="w-50 m-2" placeholder="搜索" :prefix-icon="Search" style="width: 80%;"
-                        @change="searchUser" />
+                    <el-input v-model="search" class="w-50 m-2" placeholder="搜索" :prefix-icon="Search"
+                        style="width: 80%;" @change="searchUser" />
                 </template>
                 <template #default="scope">
                     <el-button size="small" :type="scope.row.status == 1 ? 'primary' : 'warning'" plain
-                        @click="handleEdit(scope.$index, scope.row)">{{ scope.row.status === 1 ? '禁用' : '启用' }}</el-button>
+                        @click="handleEdit(scope.$index, scope.row)">{{ scope.row.status === 1 ? '禁用' : '启用'
+                        }}</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -138,4 +139,4 @@ watch(pageData.value, () => {
         justify-content: flex-end;
     }
 }
-</style>
+</style>@/interface/User

@@ -32,7 +32,7 @@ const getAuditList = async () => {
 onMounted(() => getAuditList())
 // 修改审核状态
 //徽标数字提醒
-const countStore=useCounterStore()
+const countStore = useCounterStore()
 const handleEdit = async (index: number, row: any, status: number) => {
     // 弹出确认框
     await ElMessageBox.confirm(status === 1 ? '确定通过该条数据审核吗？' : '确定不通过该条数据审核吗？', '提示', {
@@ -62,7 +62,7 @@ const pageDisabled = ref(false)
 // 监听每页最大数和页数的变化
 watch(pageData.value, () => {
     // 发送请求
-    
+
     getAuditList()
 })
 // 弹出详情
@@ -150,4 +150,4 @@ const viewDetail = (row: any) => {
         justify-content: flex-end;
     }
 }
-</style>
+</style>@/interface/audit

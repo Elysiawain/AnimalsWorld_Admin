@@ -4,7 +4,7 @@ import { Search, Delete } from '@element-plus/icons-vue'
 import { getAdminListApi, updateAdminStatusApi, deleteAdminApi, getAdminDetailApi } from '@/api/Admin'
 import { useAdminStore } from '@/stores/admin'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import type { Admin } from '@/pojo/Admin'
+import type {Admin} from "@/interfaces/Admin";
 const loading = ref(false)
 
 // TODO 发送请求获取管理员数据
@@ -224,4 +224,4 @@ const viewDetail = async (row: Admin) => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped></style>@/interface/Admin

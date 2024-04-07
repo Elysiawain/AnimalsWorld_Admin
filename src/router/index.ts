@@ -16,7 +16,7 @@ const router = createRouter({
         },
         {
           path: 'animals',
-          name: 'about',
+          name: 'animals',
           component: () => import('@/views/layout/animals/index.vue')
         },
         {
