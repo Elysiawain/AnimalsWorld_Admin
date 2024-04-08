@@ -42,7 +42,7 @@ export const getAnimalClassificationApi = () => {
  * @returns
  */
 export const addAnimalApi = (animal: Animal) => {
-    return request({
+    return request<Animal,Result<null>>({
         url: '/AW',
         method: 'post',
         data: animal

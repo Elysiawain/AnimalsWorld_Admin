@@ -16,12 +16,12 @@ const props = defineProps<{
 /**
  * 定义事件
  */
-const emit=defineEmits<{
+const emit = defineEmits<{
   close: [],// 关闭抽屉
 }>()
 const showDrawer = ref(false) // 抽屉是否显示
 
-const addAnimalForm = ref<Animal>(props.addAnimalForm)
+const addAnimalForm = ref<Animal>(props.addAnimalForms)
 // 图片列表
 const imageList = ref<UploadUserFile[]>([])
 
@@ -79,8 +79,8 @@ const dialogVisible = ref(false)
 // 取消已上传图片
 const handleRemove: UploadProps['onRemove'] = (file) => {
   // 清除对应的图片
-  let index = addAnimalForm.value.imgURL.findIndex((item) => item.url === file.url)
-  addAnimalForm.value.imgURL.splice(index, 1)
+  let index = addAnimalForm.value.imgList.findIndex((item) => item.url === file.url)
+  addAnimalForm.value.imgList.splice(index, 1)
 }
 const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
   dialogImageUrl.value = uploadFile.url!
@@ -99,12 +99,14 @@ const beforeUpload: UploadProps['beforeUpload'] = (rawFile) => {
 }
 //上传图片
 const uploadImg = async (rawFile: any) => {
-  const {data} = await upload(rawFile)
-  let newImg = {uid: rawFile.file.uid, url: data.data.imgURL}
-  addAnimalForm.value.imgURL.push(newImg)
-  imageList.value = addAnimalForm.value.imgURL
+  const res = await upload(rawFile.file)
+  let newImg = {uid: rawFile.file.uid, url: res.data}
+  addAnimalForm.value.imgList.push(newImg)
 }
-
+const uploadMainImg = async (rawFile: any) => {
+  const res = await upload(rawFile.file)
+  addAnimalForm.value.imgURL = res.data
+}
 // 添加请求
 const addAnimal = async () => {
   const res = await addAnimalApi(addAnimalForm.value)
@@ -128,12 +130,12 @@ const confirmClick = async () => {
     return
   }
   // 发送添加请求
-  const res = await addAnimal()
+  await addAnimal()
   showDrawer.value = false
 }
 // 添加结束，重新渲染页面
 const close = () => {
-  addAnimalForm.value = {}
+  addAnimalForm.value = {} as Animal
   showDrawer.value = false
   emit('close')
 }
@@ -183,16 +185,16 @@ defineExpose({
       </div>
       <div>
         主图：
-        <el-upload :before-upload="beforeUpload" :http-request="uploadImg"
-                   :on-preview="handlePictureCardPreview" :on-remove="handleRemove" action="#"
-                   list-type="picture-card">
-          <el-icon v-if="!addAnimalForm.imgURL">
+        <el-upload :before-upload="beforeUpload" :http-request="uploadMainImg" :on-preview="handlePictureCardPreview"
+                   :on-remove="handleRemove" :show-file-list="false" action="#"
+                   class="upload">
+          <el-icon v-if="!addAnimalForm.imgURL" :size="50" color="#ccc">
             <Plus/>
           </el-icon>
-          <img v-else :src="addAnimalForm.imgURL" height="100%" width="100%">
+          <img v-else :src="addAnimalForm.imgURL" height="200px" style="border-radius: 10px" width="200px">
         </el-upload>
         添加副图：
-        <el-upload v-model:file-list="imageList" :before-upload="beforeUpload" :http-request="uploadImg"
+        <el-upload :before-upload="beforeUpload" :http-request="uploadImg"
                    :on-preview="handlePictureCardPreview" :on-remove="handleRemove" action="#"
                    list-type="picture-card">
           <el-icon>
@@ -220,6 +222,18 @@ defineExpose({
 
 <style lang="scss" scoped>
 .el-drawer {
+
+  .upload {
+    border: #cccccc dashed 1px;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &:hover {
+      border: $mainColor1 dashed 1px;
+    }
+  }
 
   div {
     margin-bottom: 10px;
