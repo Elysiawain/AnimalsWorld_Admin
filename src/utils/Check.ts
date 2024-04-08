@@ -11,7 +11,7 @@ export function isValidAddAnimalForm(addAnimalForm: Animal) {
     }
 
     // 检查 imgURL 属性是否为空
-    if (addAnimalForm.imgURL?.length === 0) {
+    if (addAnimalForm.imgURL.trim()==='') {
         return false;
     }
 

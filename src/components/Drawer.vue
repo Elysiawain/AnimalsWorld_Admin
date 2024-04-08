@@ -29,6 +29,7 @@ const imageList = ref<UploadUserFile[]>([])
 //监视props变化
 watch(props, () => {
   addAnimalForm.value = props.addAnimalForms
+  tags.value = addAnimalForm.value.tags?.split(',')
   imageList.value = [] // 清空图片列表，防止图片重复添加
   let i = addAnimalForm.value.imgList?.length
   for (let j = 0; j < i; j++) {
@@ -110,32 +111,34 @@ const uploadMainImg = async (rawFile: any) => {
 // 添加请求
 const addAnimal = async () => {
   const res = await addAnimalApi(addAnimalForm.value)
-  if (res.data.code === '1') {
-    ElMessage.success('操作成功')
-    return true
-  }
-  ElMessage.error('操作失败')
-  return false
 }
 const cancelClick = () => {
   // 提交事件
   showDrawer.value = false
 }
 const confirmClick = async () => {
-
+// 修改tag
+  addAnimalForm.value.tags = tags.value?.join(',')
   // 发送前校验
-  const isValid = isValidAddAnimalForm(addAnimalForm.value)
-  if (!isValid) {
-    ElMessage.error('请填写完整数据')
-    return
+  try {
+    const isValid = isValidAddAnimalForm(addAnimalForm.value)
+    if (!isValid) {
+      ElMessage.error('请填写完整数据')
+      return
+    } else {
+      // 发送添加请求
+      await addAnimal()
+    }
+
+    showDrawer.value = false
+  } catch (err) {
+    ElMessage.error(err.message || '服务器繁忙，请稍后再试')
   }
-  // 发送添加请求
-  await addAnimal()
-  showDrawer.value = false
 }
 // 添加结束，重新渲染页面
 const close = () => {
   addAnimalForm.value = {} as Animal
+  tags.value = []
   showDrawer.value = false
   emit('close')
 }
@@ -147,6 +150,44 @@ defineExpose({
   open,
   close
 })
+
+// 添加tags
+const tags = ref<string[]>()
+const tag = ref('')
+const isShowTagInput = ref(false)
+/**
+ *
+ * @param index 删除索引
+ */
+const delTag = (index: number) => {
+  tags.value.splice(index, 1)
+}
+/**
+ * 添加标签
+ */
+const addTag = () => {
+  isShowTagInput.value = true
+}
+/**
+ * 修改标签
+ * @param index
+ */
+const editTag = (index: number) => {
+  console.log(index)
+}
+/**
+ *
+ */
+const onInputBlur = () => {
+  isShowTagInput.value = false
+  if (tag.value) {
+    tags.value?.length > 0
+        ? tags.value.push(tag.value)
+        : tags.value = [tag.value]
+    tag.value = ''
+    return
+  }
+}
 </script>
 
 <template>
@@ -183,6 +224,10 @@ defineExpose({
           <el-option v-for="item in breedList" :key="item.value" :label="item.label" :value="item.value"/>
         </el-select>
       </div>
+      <div class="add-name">
+        动物分布：
+        <el-input v-model="addAnimalForm.distribution" clearable placeholder="动物分布" style="width: 70%;"/>
+      </div>
       <div>
         主图：
         <el-upload :before-upload="beforeUpload" :http-request="uploadMainImg" :on-preview="handlePictureCardPreview"
@@ -210,6 +255,22 @@ defineExpose({
         <el-input v-model="addAnimalForm.description" :autosize="{ minRows: 2, maxRows: 4 }" maxlength="800"
                   placeholder="请输入该动物的描述" show-word-limit type="textarea"/>
       </div>
+      <div class="tag">
+        <div class="tag">
+          <el-button v-for="(item,index) in tags" :key="index" :color="'#39c5bb'" plain round
+                     size="small" @click="editTag">{{ item }}
+            <el-icon class="tag-del" @click="delTag(index)">
+              <Delete/>
+            </el-icon>
+          </el-button>
+          <el-button v-if="!isShowTagInput" :color="'#3ebed3'" plain round size="small" style="overflow:hidden;"
+                     @click="addTag">
+            <span style="display: flex;align-items: center;justify-content: center;gap: 5px">添加标签 <el-icon><Plus/></el-icon></span>
+          </el-button>
+          <input v-show="isShowTagInput" v-model="tag" :maxlength="8" class="tag-input" placeholder="请输入"
+                 @blur="onInputBlur" @keyup.enter="onInputBlur"/>
+        </div>
+      </div>
       <template #footer>
         <div style="display: flex; justify-content: start;">
           <el-button @click="cancelClick">取消</el-button>
@@ -223,6 +284,43 @@ defineExpose({
 <style lang="scss" scoped>
 .el-drawer {
 
+  .tag {
+    width: 100%;
+    padding: 10px;
+    background-color: #e6e6e6;
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    .tag-input {
+      border: none;
+      outline: none;
+      background: #EBF9F8;
+      width: 100px;
+      height: 20px;
+      border-radius: 10px;
+      padding-left: 10px;
+      font-size: 12px;
+      color: #333333;
+      caret-color: #3ebed3;
+
+      &:focus {
+        border: none;
+        caret-color: #3ebed3;
+      }
+    }
+
+    .tag-del {
+      margin-left: 5px;
+
+      &:hover {
+        color: #F44258;
+      }
+    }
+  }
+
   .upload {
     border: #cccccc dashed 1px;
     width: 200px;
@@ -230,6 +328,7 @@ defineExpose({
     display: flex;
     justify-content: center;
     align-items: center;
+
     &:hover {
       border: $mainColor1 dashed 1px;
     }
