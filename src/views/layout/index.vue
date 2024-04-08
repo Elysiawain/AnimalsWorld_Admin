@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {onMounted, ref, watch} from 'vue'
-import {useRoute, useRouter} from 'vue-router'
+import {type RouteRecordName, useRoute, useRouter} from 'vue-router'
 import {useAdminStore} from '@/stores/admin'
 import {useCounterStore} from '@/stores/counter'
 import {getBadgeNumApi} from '@/api/Admin'
@@ -18,7 +18,7 @@ const logOut = () => {
 }
 
 // 头部标题切换
-let routerTitle: any = ''
+let routerTitle: RouteRecordName | null | undefined = ''
 const title = ref<string>('首页')
 const activeName = ref<number>(1)
 // 监听路由变化，动态设置头部标题
@@ -44,15 +44,14 @@ watch(route, () => {
 })
 onMounted(() => changeTitle())
 
-const train = ref<any>(15)
 const moveY = ref(20)
 const tempMoveY = ref(20)
-const onMouseEnter = (index) => {
+const onMouseEnter = (index:number) => {
 // 记录上次移动的Y值
   tempMoveY.value = moveY.value;
   moveY.value = index * 20 + 60 * (index - 1);
 }
-const onMouseLeave = (index) => {
+const onMouseLeave = (index:number) => {
 // 记录上次移动的Y值
   moveY.value = tempMoveY.value;
 }
@@ -151,7 +150,7 @@ onMounted(() => getBadgeNum())
       <el-container>
         <el-header>
           <div class="header-title">{{ title }}</div>
-          <div>管理员：{{ adminStore?.admin.name }}</div>
+          <div>管理员：{{ adminStore?.admin.name}}</div>
           <el-dropdown>
             <el-avatar :size="60"
                        :src="adminStore?.admin.avatarURL || 'https://javaweb-twj.oss-cn-beijing.aliyuncs.com/elysiaHead.jpg'"/>

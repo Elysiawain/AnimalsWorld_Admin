@@ -1,8 +1,9 @@
 // 动物相关请求数据接口
 import request from "@/utils/Request"
-import type {Animal, AnimalPre, CategoryResponse} from "@/interfaces/Animal.d.ts";
+import type {Animal, AnimalPre, AnimalRes, CategoryResponse} from "@/interfaces/Animal.d.ts";
 import type {AnimalsSortType} from "@/types/SortType.d.ts";
 import type {PageResult} from "@/types/PageResult";
+import type {Suggest} from "@/types/Suggest";
 
 /**
  * 获取动物数据
@@ -14,7 +15,7 @@ import type {PageResult} from "@/types/PageResult";
  * @returns
  */
 export const getAnimalListApi = (page: number, pageSize: number, categoryId: number, keyword: string, type: AnimalsSortType) => {
-    return request<Result<PageResult<AnimalPre>>>({
+    return request<any, Result<PageResult<AnimalPre>>>({
         url: `/AW/user/search/${keyword}`,
         method: 'get',
         params: {
@@ -30,7 +31,7 @@ export const getAnimalListApi = (page: number, pageSize: number, categoryId: num
  * @returns
  */
 export const getAnimalClassificationApi = () => {
-    return request<Result<CategoryResponse>>({
+    return request<any, Result<CategoryResponse>>({
         url: '/AW/classification',
         method: 'get',
     })
@@ -52,21 +53,21 @@ export const addAnimalApi = (animal: Animal) => {
  * @param name
  * @returns
  */
-export const getAnimalByName = (name: string) => {
+export const getAnimalByNameApi = (name: string) => {
     return request({
         url: `/AW/search/${name}`,
         method: 'get',
     })
 }
 /**
- * 获取动物根据id数据
+ * 根据id获取动物数据
  * @param id
  * @returns
  */
-export const getAnimalById = (id: string) => {
-    return request({
+export const getAnimalByIdApi = (id: number) => {
+    return request<any, Result<AnimalRes>>({
         url: `/AW/${id}`,
-        method: 'get',
+        method: 'get'
     })
 }
 
@@ -76,7 +77,7 @@ export const getAnimalById = (id: string) => {
  * @returns
  */
 export const suggestAnimalApi = (keyword: string) => {
-    return request({
+    return request<any,Result<Suggest[]>>({
         url: "/suggest",
         method: 'get',
         params: {

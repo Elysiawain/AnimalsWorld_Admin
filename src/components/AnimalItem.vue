@@ -16,10 +16,7 @@ const emit = defineEmits<{
   initAnimal: [animalData: AnimalPre]
 }>() // 定义事件
 const showDrawer = () => {
-  emit('updateDrawer', !props.drawer)
-
   const animalData = props.animalData
-
   emit('initAnimal', animalData)
 }
 

@@ -5,11 +5,12 @@ import {onMounted, ref} from 'vue'
 import {useRoute} from 'vue-router'
 import {ElMessage} from 'element-plus'
 import {Search} from '@element-plus/icons-vue'
-import {getAnimalByName, getAnimalClassificationApi, getAnimalListApi, suggestAnimalApi} from '@/api/Animals'
+import {getAnimalByIdApi, getAnimalClassificationApi, getAnimalListApi, suggestAnimalApi} from '@/api/Animals'
 import {useAnimalStore} from '@/stores/animal'
 import {debounce} from '@/utils/debounce'
 import type {Animal, AnimalPre, Category} from "@/interfaces/Animal.d";
 import type {AnimalsSortType} from "@/types/SortType.d";
+import type {Suggest} from "@/types/Suggest";
 
 const loading = ref(false)
 const bottomLoading = ref(false) //底部加载
@@ -25,11 +26,10 @@ const sortType = ref<AnimalsSortType>(1) // 排序方式
 // 初始化数据
 const getAnimalList = async () => {
   loading.value = true
-
   try {
     const res = await getAnimalListApi(page.value, pageSize.value, categoryId.value, search.value || '鸡', sortType.value)
-    animalList.value = res.data.data.data
-    total.value = res.data.data.total
+    animalList.value = res.data.data
+    total.value = res.data.total
     loading.value = false
   } catch (err) {
     ElMessage.error('获取动物列表失败')
@@ -62,7 +62,7 @@ const animalStore = useAnimalStore()
 const getAnimalClassification = async () => {
   loading.value = true
   const res = await getAnimalClassificationApi()
-  classificationList.value = res.data.data.classificationList
+  classificationList.value = res.data.classificationList
   animalStore.setClassfication(classificationList.value)
   categoryOptions.value = classificationList.value.map(item => {
     return item.name
@@ -72,35 +72,39 @@ const getAnimalClassification = async () => {
 getAnimalClassification()
 // 搜索框
 const startSearch = async () => {
+  isShowSuggest.value = true
   //发送请求，根据输入框搜索，
-
-  await getAnimalByName(search.value)
-  search.value = ''
+  await getAnimalList()
   // 重新渲染页面
-  getAnimalList()
 }
 
+const isShowSuggest = ref(true) //搜索建议显示
 /**
  * 搜索建议
  */
-const suggestData = ref<any>([])
+const suggestData = ref<Suggest[]>([])
 const suggest = async () => {
-  if (search.value === '') {
+  if (search.value.trim() === '') {
     suggestData.value = []
     return
   }
   // 发送请求
-  const {data: {data}} = await suggestAnimalApi(search.value)
-  suggestData.value = data
+  const res = await suggestAnimalApi(search.value)
+  suggestData.value = res.data
+  return res.data
 }
 
 const debounceSuggest = debounce(suggest, 200, {leading: false})
 
 const searchBySuggest = (keyword: string) => {
   search.value = keyword
-  startSearch()
+  getAnimalList()
 }
 
+//失焦时
+const onBlur = () => {
+  isShowSuggest.value = false
+}
 const highlightKeyword = (keyword: string, text: string): string => {
   //返回一个处理后的字符串
   /**
@@ -120,7 +124,7 @@ const loadMore = async () => {
     return
   }
   page.value++
-  const {data: {data}} = await getAnimalListApi(page.value, pageSize.value, categoryId.value, search.value || '鸡', sortType.value)
+  const {data} = await getAnimalListApi(page.value, pageSize.value, categoryId.value, search.value || '鸡', sortType.value)
   bottomLoading.value = false
   // 拼接数组
   animalList.value = [...animalList.value!, ...data.data]
@@ -146,21 +150,21 @@ const handleDrawerUpdate = (newDrawerStatus: any) => {
  *  添加动物
  * @param animalData 动物预览信息
  */
-const initAnimal = (animalData: AnimalPre) => {
+const initAnimal = async (animalData: AnimalPre) => {
   //TODO 请求详细数据
-  addAnimalForm.value = animalData
+  const res = await getAnimalByIdApi(animalData.id)
+  addAnimalForm.value = res.data.animalList[0]
   // 清空
   drawer_title.value = '编辑动物'
-  addAnimalForm.value.imgURL.forEach(img => {
-    let initImg = {
-      name: '',
-      url: ''
-    }
-    initImg.name = img.uid
-    initImg.url = img.url
-  })
-
-
+  // addAnimalForm.value.imgList.forEach(img => {
+  //   let initImg = {
+  //     name: '',
+  //     url: ''
+  //   }
+  //   initImg.name = img.uid
+  //   initImg.url = img.url
+  // })
+  animalDrawer.value.showDrawer = true
 }
 
 const animalDrawer = ref()
@@ -172,29 +176,42 @@ const open = () => {
 }
 // 分类选择
 
-const addAnimalForm = ref<Animal>({
-  name: '',
-  imgURL: [{
-    uid: '',
-    url: ''
-  }],
-  description: '',
-  classification: '',
-  distribution: '',
-  protectionLevel: '',
-  diet: '',
-  breeding: '',
-  lifestyle: '',
-  predator: '',
-})
+const addAnimalForm = ref<Animal>({} as Animal)
 
+/**
+ * 关闭抽屉
+ */
 const closeDrawer = () => {
   drawer.value = false
-  getAnimalList()
+  // getAnimalList()
   addAnimalForm.value = {} as Animal
-  addAnimalForm.value.imgURL = [] as any
+  addAnimalForm.value.imgList = [{uid: '', url: ''}]
 }
 
+
+//搜索自动补全
+const querySearch = async (queryString: string, cb: any) => {
+  if (queryString.trim().length === 0) { // 如果输入框为空就不进行搜索
+    return cb(suggestData.value)
+  }
+  await suggest()
+  // call callback function to return suggestion objects
+  cb(suggestData.value)
+}
+/*const createFilter = (queryString: any) => {
+  return (restaurant: any) => {
+    return (
+        restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0
+    )
+  }
+}*/
+const handleSelectSuggest = (item: Suggest) => {
+  search.value = item.name
+  startSearch() // 选项改变，开始搜索
+}
+
+const handleIconClick = (ev: Event) => {
+}
 </script>
 <template>
   <div id="container" ref="container" v-loading="loading" class="container">
@@ -214,24 +231,41 @@ const closeDrawer = () => {
           <el-menu-item index="3">世界之最</el-menu-item>
 
         </el-menu>
-        <el-input v-model="search" :placeholder="'鸡'" :prefix-icon="Search" class="w-50 m-2 search-box"
-                  @blur="suggestData = ''" @change="startSearch()" @focus="debounceSuggest"
-                  @input="debounceSuggest"/>
+        <el-autocomplete
+            v-model="search"
+            :fetch-suggestions="querySearch"
+            placeholder="可爱的动物(≧∇≦)ﾉ"
+            popper-class="my-autocomplete"
+            @change="searchBySuggest"
+            @select="handleSelectSuggest"
+        >
+          <template #suffix>
+            <el-icon class="el-input__icon" style="cursor: pointer" @click="handleIconClick">
+              <Search/>
+            </el-icon>
+          </template>
+          <template #default="{ item }">
+            <div class="value" v-html="highlightKeyword(search,item.name)"></div>
+          </template>
+        </el-autocomplete>
+        <!--        <el-input v-model="search" :placeholder="'鸡'" :prefix-icon="Search" class="w-50 m-2 search-box"
+                          @blur="onBlur" @change="startSearch()" @focus="debounceSuggest"
+                          @input="debounceSuggest"/>-->
 
         <!-- 搜索建议 -->
-        <div v-if="suggestData.length > 1" class="suggest-box">
-          <div v-for="(item, index) in suggestData.slice(0, 10)" :key="index" class="suggest-item"
-               @click="searchBySuggest(item)" v-html="highlightKeyword(search, item)">
-
-          </div>
-        </div>
+        <!--        <div v-if="suggestData?.length >= 1&&isShowSuggest" class="suggest-box">
+                  <div v-for="(item, index) in suggestData.slice(0,10)" :key="index" class="suggest-item"
+                        @click="searchBySuggest(item.name)">
+                    {{highlightKeyword(search, item.name)}}
+                  </div>
+                </div>-->
 
       </div>
     </el-affix>
     <el-button color="#39c5bb" icon="Plus" plain style="margin-bottom: 20px"
                @click="open">添加动物
     </el-button>
-    <div v-if="animalList!.length > 1" v-infinite-scroll="startLoadMore" :infinite-scroll-disabled="disabled"
+    <div v-if="animalList!.length >0" v-infinite-scroll="startLoadMore" :infinite-scroll-disabled="disabled"
          class="animals-container">
       <AnimalItem v-for="(item) in animalList" :key="item.id" v-loading="loading" :animalData="item"
                   :drawer="drawer" class="animal-item" @update-drawer="handleDrawerUpdate"
@@ -245,7 +279,7 @@ const closeDrawer = () => {
         height: 100px;
         background-color: rgb(247,247,247);">
       <div v-if="bottomLoading&&!disabled" class="bottom-loading">
-        {{disabled}}
+        {{ disabled }}
       </div>
       <div v-else style="color: #cccccc;width: 100%;display: flex;justify-content: center;margin-top: 30px">
         没有更多了哟~
@@ -253,8 +287,8 @@ const closeDrawer = () => {
     </div>
   </div>
   <!-- 侧边抽屉(组件化) -->
-  <Drawer ref="animalDrawer" :add-animal-form="addAnimalForm" :drawer_title="drawer_title" :options="categoryOptions"
-          @close-drawer="closeDrawer"></Drawer>
+  <Drawer ref="animalDrawer" :add-animal-forms="addAnimalForm" :drawer_title="drawer_title" :options="categoryOptions"
+          @close="closeDrawer"></Drawer>
 </template>
 
 <style lang="scss" scoped>

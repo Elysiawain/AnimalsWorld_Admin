@@ -1,10 +1,10 @@
 // 管理员数据仓库
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import type {Admin, AdminInfo} from "@/interfaces/Admin";
+import type {Admin, AdminInfo} from "@/interfaces/Admin.d";
 
 export const useAdminStore = defineStore('admin', () => {
-    const admin = ref<Admin>()
+    const admin = ref<Admin>({})
     const token=ref<string>(localStorage.getItem('token')||'')
     const getAdminInfo = () => {
         admin.value = JSON.parse(localStorage.getItem('adminInfo')||'{}') 

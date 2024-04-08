@@ -6,7 +6,7 @@ import { Warning, Plus } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { UploadProps } from 'element-plus'
 import AdminDetail from '@/components/AdminDetail.vue'
-import { getAnimalById } from '@/api/Animals'
+import { getAnimalByIdApi } from '@/api/Animals'
 import { upload } from '@/api/Common'
 
 const loading = ref(false)
@@ -115,9 +115,9 @@ const title = ref(['我的审核', '我的添加', '我的修改'])
  * 根据动物id获取对应动物数据
  * @param ids 
  */
-const getAnimalList: any = async (ids: string) => {
-    const res = await getAnimalById(ids)
-    return res.data.data.AWList
+const getAnimalList = async (ids: string) => {
+    const res = await getAnimalByIdApi(ids)
+    return res.data
 }
 //修改背景
 const editBgc = ref<any>(false)

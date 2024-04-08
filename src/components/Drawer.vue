@@ -10,23 +10,31 @@ import type {Animal} from "@/interfaces/Animal";
 
 const props = defineProps<{
   drawer_title: string,
-  addAnimalForm: Animal,
+  addAnimalForms: Animal,
   options: string[]
+}>()
+/**
+ * 定义事件
+ */
+const emit=defineEmits<{
+  close: [],// 关闭抽屉
 }>()
 const showDrawer = ref(false) // 抽屉是否显示
 
-const addAnimalForm = ref<any>(props.addAnimalForm)
+const addAnimalForm = ref<Animal>(props.addAnimalForm)
 // 图片列表
 const imageList = ref<UploadUserFile[]>([])
+
+
 //监视props变化
 watch(props, () => {
-  addAnimalForm.value = props.addAnimalForm
+  addAnimalForm.value = props.addAnimalForms
   imageList.value = [] // 清空图片列表，防止图片重复添加
-  let i = addAnimalForm.value.imgURL.length
+  let i = addAnimalForm.value.imgList?.length
   for (let j = 0; j < i; j++) {
     imageList.value.push({
-      name: addAnimalForm.value.imgURL[j].uid,
-      url: addAnimalForm.value.imgURL[j].url
+      name: addAnimalForm.value.imgList[j].uid,
+      url: addAnimalForm.value.imgList[j].url
     })
   }
 })
@@ -46,7 +54,7 @@ const protectionLevel = [
   },
   {
     value: '4',
-    label: '普通'
+    label: '可爱的动物'
   }
 ]
 // 繁殖方式
@@ -76,7 +84,6 @@ const handleRemove: UploadProps['onRemove'] = (file) => {
 }
 const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
   dialogImageUrl.value = uploadFile.url!
-  console.log(uploadFile.url)
   dialogVisible.value = true
 }
 // 图片上传前校验
@@ -109,12 +116,10 @@ const addAnimal = async () => {
   return false
 }
 const cancelClick = () => {
-  console.log("取消")
   // 提交事件
   showDrawer.value = false
 }
 const confirmClick = async () => {
-  console.log(addAnimalForm.value)
 
   // 发送前校验
   const isValid = isValidAddAnimalForm(addAnimalForm.value)
@@ -128,8 +133,9 @@ const confirmClick = async () => {
 }
 // 添加结束，重新渲染页面
 const close = () => {
-  imageList.value = []
+  addAnimalForm.value = {}
   showDrawer.value = false
+  emit('close')
 }
 const open = () => {
   showDrawer.value = true
@@ -176,7 +182,16 @@ defineExpose({
         </el-select>
       </div>
       <div>
-        添加图片：
+        主图：
+        <el-upload :before-upload="beforeUpload" :http-request="uploadImg"
+                   :on-preview="handlePictureCardPreview" :on-remove="handleRemove" action="#"
+                   list-type="picture-card">
+          <el-icon v-if="!addAnimalForm.imgURL">
+            <Plus/>
+          </el-icon>
+          <img v-else :src="addAnimalForm.imgURL" height="100%" width="100%">
+        </el-upload>
+        添加副图：
         <el-upload v-model:file-list="imageList" :before-upload="beforeUpload" :http-request="uploadImg"
                    :on-preview="handlePictureCardPreview" :on-remove="handleRemove" action="#"
                    list-type="picture-card">
@@ -190,7 +205,7 @@ defineExpose({
       </div>
       <div class="description">
         动物简述：
-        <el-input v-model="addAnimalForm.description" :autosize="{ minRows: 2, maxRows: 4 }" maxlength="200"
+        <el-input v-model="addAnimalForm.description" :autosize="{ minRows: 2, maxRows: 4 }" maxlength="800"
                   placeholder="请输入该动物的描述" show-word-limit type="textarea"/>
       </div>
       <template #footer>
