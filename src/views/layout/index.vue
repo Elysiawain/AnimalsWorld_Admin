@@ -262,7 +262,7 @@ onMounted(() => getBadgeNum())
       .train {
         width: 100%;
         height: 40px;
-        background-color: #39c5bb;
+        background-color: $mainColor1;
         position: absolute;
         transition: all 0.15s linear;
       }
@@ -299,7 +299,7 @@ onMounted(() => getBadgeNum())
         position: relative;
 
         &:hover {
-          color: #51b0ae;
+          color: #00bf9d;
           transform: translate3d(0, -5px, 0);
         }
 

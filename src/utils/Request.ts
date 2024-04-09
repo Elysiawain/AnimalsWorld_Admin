@@ -30,7 +30,7 @@ request.interceptors.response.use(response => {
     // 2xx 范围内的状态码都会触发该函数。
     // 对响应数据做点什么
     if (response.data.code != 1) {
-        return ElMessage.error(response.data.message)
+        return ElMessage.error(response.data.message||'服务异常，请稍后重试')
     }
     return response.data;
 }, error => {

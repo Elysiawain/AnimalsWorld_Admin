@@ -31,6 +31,10 @@ const getAnimalList = async () => {
     animalList.value = res.data.data
     total.value = res.data.total
     loading.value = false
+    if (page.value * pageSize.value > total.value) {
+      disabled.value = true // 没有更多数据了
+      return
+    }
   } catch (err) {
     ElMessage.error('获取动物列表失败')
     loading.value = false
@@ -279,7 +283,6 @@ const handleIconClick = (ev: Event) => {
         height: 100px;
         background-color: rgb(247,247,247);">
       <div v-if="bottomLoading&&!disabled" class="bottom-loading">
-        {{ disabled }}
       </div>
       <div v-else style="color: #cccccc;width: 100%;display: flex;justify-content: center;margin-top: 30px">
         没有更多了哟~
@@ -405,8 +408,8 @@ justify-content: start; */
     width: 2.5em;
     height: 3em;
     border: 3px solid transparent;
-    border-top-color: $asideFontColor;
-    border-bottom-color: $titleFontColor;
+    border-top-color: $mainColor1;
+    border-bottom-color: $mainColor2;
     border-radius: 50%;
     animation: spin-stretch 2s ease infinite;
 

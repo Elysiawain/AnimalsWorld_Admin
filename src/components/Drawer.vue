@@ -11,7 +11,7 @@ import type {Animal} from "@/interfaces/Animal";
 const props = defineProps<{
   drawer_title: string,
   addAnimalForms: Animal,
-  options: string[]
+  options: string[],
 }>()
 /**
  * 定义事件
@@ -111,6 +111,7 @@ const uploadMainImg = async (rawFile: any) => {
 // 添加请求
 const addAnimal = async () => {
   const res = await addAnimalApi(addAnimalForm.value)
+  ElMessage.success('操作成功')
 }
 const cancelClick = () => {
   // 提交事件
@@ -118,7 +119,7 @@ const cancelClick = () => {
 }
 const confirmClick = async () => {
 // 修改tag
-  addAnimalForm.value.tags = tags.value?.join(',')
+  tags.value ? addAnimalForm.value.tags = tags.value?.join(',') : ''
   // 发送前校验
   try {
     const isValid = isValidAddAnimalForm(addAnimalForm.value)
@@ -131,8 +132,8 @@ const confirmClick = async () => {
     }
 
     showDrawer.value = false
-  } catch (err) {
-    ElMessage.error(err.message || '服务器繁忙，请稍后再试')
+  } catch (err: any) {
+    ElMessage.error('请填写完整数据')
   }
 }
 // 添加结束，重新渲染页面
@@ -152,7 +153,7 @@ defineExpose({
 })
 
 // 添加tags
-const tags = ref<string[]>()
+const tags = ref<string[]>([])
 const tag = ref('')
 const isShowTagInput = ref(false)
 /**
@@ -160,7 +161,7 @@ const isShowTagInput = ref(false)
  * @param index 删除索引
  */
 const delTag = (index: number) => {
-  tags.value.splice(index, 1)
+  tags.value!.splice(index, 1)
 }
 /**
  * 添加标签
@@ -229,7 +230,7 @@ const onInputBlur = () => {
         <el-input v-model="addAnimalForm.distribution" clearable placeholder="动物分布" style="width: 70%;"/>
       </div>
       <div>
-        主图：
+        <p style="margin-bottom: 20px">主图：</p>
         <el-upload :before-upload="beforeUpload" :http-request="uploadMainImg" :on-preview="handlePictureCardPreview"
                    :on-remove="handleRemove" :show-file-list="false" action="#"
                    class="upload">
@@ -238,6 +239,12 @@ const onInputBlur = () => {
           </el-icon>
           <img v-else :src="addAnimalForm.imgURL" height="200px" style="border-radius: 10px" width="200px">
         </el-upload>
+        <div><p style="margin-bottom: 20px;margin-top: 30px">已添加副图：<span style="color: #39c5bb;font-size: 10px">（注：副图不可修改）</span> </p>
+          <div style="display: flex;gap: 20px;width: 100%;align-items: center;flex-wrap: wrap">
+            <img v-for="(item) in addAnimalForm.imgList" :key="item.uid" :src="item.url" height="150px"
+                 style="border-radius: 10px" width="150px">
+          </div>
+        </div>
         添加副图：
         <el-upload :before-upload="beforeUpload" :http-request="uploadImg"
                    :on-preview="handlePictureCardPreview" :on-remove="handleRemove" action="#"
