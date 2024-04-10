@@ -13,7 +13,7 @@ onMounted(() => {
 
 <template>
     <div class="container">
-        首页内容
+        <h1>统计数据展示区</h1>
     </div>
 </template>
 

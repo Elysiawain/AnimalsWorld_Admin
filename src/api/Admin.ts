@@ -1,5 +1,6 @@
 // 管理员相关接口
 import request from "@/utils/Request"
+import type {adminList} from "@/interfaces/Admin";
 /**
  * 管理员登录
  * @param adminName 
@@ -21,7 +22,7 @@ export const adminLoginApi = (adminName: string, password: string) => {
  * @returns 
  */
 export const getAdminListApi = () => {
-    return request({
+    return request<any,Result<adminList>>({
         url: '/admin',
         method: 'get'
     })
@@ -36,7 +37,7 @@ export const getAdminListApi = () => {
 export const updateAdminApi = (name: string, avatarURL: string, message: string, bgcImgURL: string) => {
     return request({
         url: '/admin',
-        method: 'put',
+        method: 'post',
         params: {
             name,
             avatarURL,
@@ -47,15 +48,14 @@ export const updateAdminApi = (name: string, avatarURL: string, message: string,
 }
 /**
  * 修改账号（管理员）信息
- * @param adminID 
- * @param adminName 
+ * @param adminID
  * @param status 
  * @returns 
  */
 export const updateAdminStatusApi = (adminID: string, status: number) => {
     return request({
         url: '/admin/status',
-        method: 'put',
+        method: 'POST',
         params: {
             adminID,
             status
@@ -71,7 +71,7 @@ export const updateAdminStatusApi = (adminID: string, status: number) => {
 export const deleteAdminApi = (adminID: string) => {
     return request({
         url: '/admin',
-        method: 'delete',
+        method: 'post',
         params: {
             adminID
         }
