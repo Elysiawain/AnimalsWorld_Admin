@@ -16,13 +16,14 @@ import type {Suggest} from "@/types/Suggest";
  */
 export const getAnimalListApi = (page: number, pageSize: number, categoryId: number, keyword: string, type: AnimalsSortType) => {
     return request<any, Result<PageResult<AnimalPre>>>({
-        url: `/AW/user/search/${keyword}`,
+        url: `/AW/user/search`,
         method: 'get',
         params: {
             page,
             pageSize,
             categoryId,
-            type
+            type,
+            keyword
         }
     })
 }

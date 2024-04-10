@@ -18,7 +18,7 @@ const animalList = ref<AnimalPre[]>([])
 const total = ref(0)
 const page = ref(1)
 const pageSize = ref(20)
-const classification = ref<string>('')
+const classification = ref('')
 const categoryId = ref()
 const route = useRoute()
 const search = ref('') // 搜索关键词
@@ -27,7 +27,7 @@ const sortType = ref<AnimalsSortType>(1) // 排序方式
 const getAnimalList = async () => {
   loading.value = true
   try {
-    const res = await getAnimalListApi(page.value, pageSize.value, categoryId.value, search.value || '鸡', sortType.value)
+    const res = await getAnimalListApi(page.value, pageSize.value, categoryId.value, search.value, sortType.value)
     animalList.value = res.data.data
     total.value = res.data.total
     loading.value = false
@@ -53,8 +53,11 @@ const handleSelect = async (key: string) => {
   if (key === '4') {
     return
   }
-  //TODO 发送请求重新渲染
+  // 发送请求重新渲染
   classification.value = newIndex
+  // 修改分类id
+  categoryId.value = classificationList.value[clIndex.value].id
+  console.log(categoryId.value)
   await getAnimalList()
 
 }
@@ -128,7 +131,7 @@ const loadMore = async () => {
     return
   }
   page.value++
-  const {data} = await getAnimalListApi(page.value, pageSize.value, categoryId.value, search.value || '鸡', sortType.value)
+  const {data} = await getAnimalListApi(page.value, pageSize.value, categoryId.value, search.value, sortType.value)
   bottomLoading.value = false
   // 拼接数组
   animalList.value = [...animalList.value!, ...data.data]

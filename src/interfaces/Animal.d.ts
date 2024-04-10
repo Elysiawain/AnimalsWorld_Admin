@@ -11,6 +11,8 @@
  @property {string} lifestyle - 动物生活习性
  @property {string} predator - 动物天敌
  @property {string} tag - 动物标签
+ @property {number} score - 动物评分
+ @property searchCount
  @property imgList*/
 export interface Animal {
     animalID: string
@@ -25,6 +27,8 @@ export interface Animal {
     lifestyle: string
     predator: string
     tags: string
+    score:number
+    searchCount:number
     imgList: [{
         uid: string
         url: string

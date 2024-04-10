@@ -30,6 +30,7 @@ const imageList = ref<UploadUserFile[]>([])
 watch(props, () => {
   addAnimalForm.value = props.addAnimalForms
   tags.value = addAnimalForm.value.tags?.split(',')
+  score.value= Number((addAnimalForm.value.score / 20).toFixed(2))
   imageList.value = [] // 清空图片列表，防止图片重复添加
   let i = addAnimalForm.value.imgList?.length
   for (let j = 0; j < i; j++) {
@@ -189,6 +190,10 @@ const onInputBlur = () => {
     return
   }
 }
+
+// 评分
+const rateColors = ref(['#99A9BF', '#F7BA2A', '#FF9900'])
+const score= ref(0)
 </script>
 
 <template>
@@ -203,6 +208,9 @@ const onInputBlur = () => {
           </el-icon>
         </div>
       </template>
+      <h4 style="color:#cccccc">浏览次数：<span style="color: #3ebed3">{{addAnimalForm.searchCount}}</span> </h4>
+      <el-rate v-model="score" :allow-half="true" :colors="rateColors" disabled size="large"
+             score-template="{value} 分"  show-score  text-color="#39c5bb"/>
       <div class="add-name">
         动物名称：
         <el-input v-model="addAnimalForm.name" clearable placeholder="动物名称" style="width: 52%;"/>
@@ -239,7 +247,7 @@ const onInputBlur = () => {
           </el-icon>
           <img v-else :src="addAnimalForm.imgURL" height="200px" style="border-radius: 10px" width="200px">
         </el-upload>
-        <div><p style="margin-bottom: 20px;margin-top: 30px">已添加副图：<span style="color: #39c5bb;font-size: 10px">（注：副图不可修改）</span> </p>
+        <div v-if="addAnimalForm.imgList[0]?.url"><p style="margin-bottom: 20px;margin-top: 30px">已添加副图：<span style="color: #39c5bb;font-size: 10px">（注：副图不可修改）</span> </p>
           <div style="display: flex;gap: 20px;width: 100%;align-items: center;flex-wrap: wrap">
             <img v-for="(item) in addAnimalForm.imgList" :key="item.uid" :src="item.url" height="150px"
                  style="border-radius: 10px" width="150px">
