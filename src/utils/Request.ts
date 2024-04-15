@@ -1,7 +1,9 @@
 import axios from "axios";
 import {useAdminStore} from "@/stores/admin";
 import {ElMessage} from 'element-plus';
+import {useRouter} from "vue-router";
 
+const router = useRouter();
 const adminStore = useAdminStore();
 axios.defaults.baseURL = '/api'
 // 创建axios实例
@@ -14,7 +16,7 @@ request.interceptors.request.use(config => {
     if (adminStore.token) {
         config.headers['token'] = adminStore.token // 配置请求头·
     } else if (config.url != '/admin/login') {
-        window.location.href = '/login'
+        router.replace('/login')
         ElMessage.error('请先登录!')
         return false
     }

@@ -8,7 +8,7 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base:'/animals-world-front/',
+  base:'/AnimalsWorldFront/',
   plugins: [
     vue(),
     //导入Element+组件

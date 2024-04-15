@@ -1,0 +1,1 @@
+import{_ as e,c as o,e as s,B as t,C as a,h as _}from"./index-qEOnZ1yg.js";const n={},d=c=>(t("data-v-ca2b055c"),c=c(),a(),c),r={class:"contianer"},p=d(()=>_("h1",null,"404——NOTFound",-1)),i=[p];function h(c,l){return o(),s("div",r,i)}const u=e(n,[["render",h],["__scopeId","data-v-ca2b055c"]]);export{u as default};
