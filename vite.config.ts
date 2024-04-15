@@ -24,21 +24,22 @@ export default defineConfig({
     }
   },
   server: {
+    port: 3000,
     // 配置反向代理
     proxy: {
       '/api': {
         // target: 'http://127.0.0.1:4523/m1/3627295-0-default/',
-        target: 'http://127.0.0.1:8080',
+        target: 'http://47.109.131.58:8080',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
   },
-  css:{
+  css: {
     preprocessorOptions: {
       scss: {
         additionalData: `@import "./src/styles/var.scss";`
-        }
       }
+    }
   }
 })

@@ -1,21 +1,21 @@
 <script lang="ts" setup>
-import {reactive, ref} from 'vue'
-import {ElMessage, type FormInstance, type FormRules} from 'element-plus'
-import {useRouter} from 'vue-router'
-import {adminLoginApi} from '@/api/Admin'
-import {useAdminStore} from '@/stores/admin'
+import { reactive, ref } from 'vue'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { useRouter } from 'vue-router'
+import { adminLoginApi } from '@/api/Admin'
+import { useAdminStore } from '@/stores/admin'
 
 const router = useRouter()
 const ruleFormRef = ref<FormInstance>()
 const adminStore = useAdminStore()
 const adminLogin = async () => {
-  const {data} = await adminLoginApi(ruleForm.admin, ruleForm.pass)
-  if (data.code !== '1') {
-    ElMessage.error(data.msg || '登录失败！')
+  const res = await adminLoginApi(ruleForm.admin, ruleForm.pass)
+  if (res.code !== '1') {
+    ElMessage.error(res.msg || '登录失败！')
     return
   }
   // 本地持久化
-  adminStore.setAdminInfo(data.data)
+  adminStore.setAdminInfo(res.data)
   ElMessage.success('登录成功')
   await router.push('/')
 }
@@ -43,8 +43,8 @@ const ruleForm = reactive({
 })
 
 const rules = reactive<FormRules<typeof ruleForm>>({
-  pass: [{required: true, validator: validatePass, trigger: 'blur'}],
-  admin: [{required: true, message: '请输入用户名', trigger: 'blur'}],
+  pass: [{ required: true, validator: validatePass, trigger: 'blur' }],
+  admin: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
 })
 
 const submitForm = (formEl: FormInstance | undefined) => {
@@ -65,16 +65,18 @@ const submitForm = (formEl: FormInstance | undefined) => {
 <template>
   <div class="container">
     <div class="login">
-      <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="auto" status-icon style="width: 400px" label-position="right">
+      <el-form ref="ruleFormRef" :model="ruleForm" :rules="rules" label-width="auto" status-icon style="width: 400px"
+        label-position="right">
         <div class="logo">
         </div>
-        <el-form-item class="label" label="用户名" prop="admin" >
-          <el-input v-model="ruleForm.admin"  type="text" style="width: 250px"/>
+        <el-form-item class="label" label="用户名" prop="admin">
+          <el-input v-model="ruleForm.admin" type="text" style="width: 250px" />
         </el-form-item>
         <el-form-item class="label" label="密码" prop="pass">
-          <el-input v-model="ruleForm.pass"  type="password" style="width: 250px"/>
+          <el-input v-model="ruleForm.pass" type="password" style="width: 250px" />
         </el-form-item>
-        <el-button color="#39c5bb" style="color: #FFFFFF;width: 250px;margin-left: 60px" @click="submitForm(ruleFormRef)" >登录</el-button>
+        <el-button color="#39c5bb" style="color: #FFFFFF;width: 250px;margin-left: 60px"
+          @click="submitForm(ruleFormRef)">登录</el-button>
       </el-form>
 
     </div>

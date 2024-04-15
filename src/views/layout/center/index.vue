@@ -20,7 +20,7 @@ const editAnimalList = ref<any>([])
 const getAdminDetail = async () => {
     loading.value = true
     try {
-        const { data: { data } } = await getAdminDetailApi(adminStore.admin.adminID)
+        const { data} = await getAdminDetailApi(adminStore.admin!.adminID)
         adminDetail.value = data.admin
         auditAnimalList.value = await getAnimalList(adminDetail.value.audit.toString()) // 获取审核动物列表
         addAnimalList.value = await getAnimalList(adminDetail.value.addCount.toString()) // 获取新增动物列表
@@ -38,9 +38,9 @@ onMounted(() => getAdminDetail())
 const drawer = ref(false)
 const direction = ref('rtl')
 const newAdminInfo = ref<any>({
-    name: adminStore.admin.name,
+    name: adminStore.admin?.name,
     bgcImgURL: '',
-    avatarURL: adminStore.admin.avatarURL,
+    avatarURL: adminStore.admin?.avatarURL,
     message: adminDetail.value.message,
 })
 
@@ -116,7 +116,7 @@ const title = ref(['我的审核', '我的添加', '我的修改'])
  * @param ids 
  */
 const getAnimalList = async (ids: string) => {
-    const res = await getAnimalByIdApi(ids)
+    const res = await getAnimalByIdApi(Number(ids))
     return res.data
 }
 //修改背景
@@ -168,9 +168,9 @@ const closeEditDrawer = () => {
             <div class="info" :style="{ 'backgroundImage': 'url(' + adminDetail.bgcImgURL + ')' }">
                 <div class="edit-bgcImg" @click="editBgcImg">修改背景</div>
                 <div class="admin-detail">
-                    <div class="info-avatar"><img :src="adminStore.admin.avatarURL" alt="" width="100px"></div>
-                    <div class="info-name">{{ adminStore.admin.name }}</div>
-                    <div class="info-ID"> 账号ID：{{ adminDetail.adminID }}</div>
+                    <div class="info-avatar"><img :src="adminStore.admin?.avatarURL" alt="" width="100px"></div>
+                    <div class="info-name">{{ adminStore.admin?.name }}</div>
+                    <div class="info-ID"> 账号ID：{{ adminDetail?.adminID }}</div>
                     <div class="info-message">{{ adminDetail.message }}</div>
                 </div>
                 <div class="info-statistic">
@@ -318,9 +318,9 @@ const closeEditDrawer = () => {
         </div>
 
         <div class="content data">
-            <AdminDetail :titie="title[0]" :animal-data="auditAnimalList" @close-edit-drawer="closeEditDrawer"></AdminDetail>
-            <AdminDetail :titie="title[1]" :animal-data="addAnimalList" @close-edit-drawer="closeEditDrawer"></AdminDetail>
-            <AdminDetail :titie="title[2]" :animal-data="editAnimalList" @close-edit-drawer="closeEditDrawer"></AdminDetail>
+            <AdminDetail :title="title[0]" :animal-data="auditAnimalList" @close-edit-drawer="closeEditDrawer"></AdminDetail>
+            <AdminDetail :title="title[1]" :animal-data="addAnimalList" @close-edit-drawer="closeEditDrawer"></AdminDetail>
+            <AdminDetail :title="title[2]" :animal-data="editAnimalList" @close-edit-drawer="closeEditDrawer"></AdminDetail>
 
         </div>
     </div>

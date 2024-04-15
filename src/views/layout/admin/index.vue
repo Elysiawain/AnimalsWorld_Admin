@@ -34,7 +34,7 @@ const filterTableData = computed(() =>
 )
 // 修改账号的状态（只有超级管理员可以）
 const handleEdit = async (index: number, row: adminListItem) => {
-  if (adminStore.admin.adminID.toString() !== '1') {
+  if (adminStore.admin?.adminID.toString() !== '1') {
     ElMessage.error('当前登录账号权限不足！')
     return
   }
