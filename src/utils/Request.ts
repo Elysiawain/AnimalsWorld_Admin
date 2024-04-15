@@ -16,7 +16,7 @@ request.interceptors.request.use(config => {
     if (adminStore.token) {
         config.headers['token'] = adminStore.token // 配置请求头·
     } else if (config.url != '/admin/login') {
-        // router.replace('/login')
+        router.replace('/login')
         ElMessage.error('请先登录!')
         return false
     }
