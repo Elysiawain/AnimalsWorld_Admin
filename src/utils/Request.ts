@@ -9,13 +9,13 @@ const request = axios.create({
     timeout: 10000
 })
 // 添加请求拦截器
-request.interceptors.request.use(config => {
+request.interceptors.request.use((config: any) => {
     // 在发送请求之前做些什么
     if (adminStore.token) {
         config.headers['token'] = adminStore.token // 配置请求头·
     } else if (config.url != '/admin/login') {
         ElMessage.error('请先登录!')
-        window.location.href = '/login'
+        window.location.href = '/animals/login'
         return false
     }
 
