@@ -3,7 +3,7 @@ import {ref} from 'vue'
 import type {AnimalPre} from "@/interfaces/Animal";
 
 const props = defineProps<{
-  drawer: boolean,
+  drawer?: boolean,
   animalData: AnimalPre
 }>()
 //预发送图片请求

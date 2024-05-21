@@ -68,9 +68,13 @@ const classificationList = ref<Category[]>([])
 const animalStore = useAnimalStore()
 const getAnimalClassification = async () => {
   loading.value = true
-  const res = await getAnimalClassificationApi()
-  classificationList.value = res.data.classificationList
-  animalStore.setClassfication(classificationList.value)
+  if (animalStore.category){
+    classificationList.value = animalStore.category
+  }else {
+    const res = await getAnimalClassificationApi()
+    classificationList.value = res.data.classificationList
+    animalStore.category=classificationList.value
+  }
   categoryOptions.value = classificationList.value.map(item => {
     return item.name
   })

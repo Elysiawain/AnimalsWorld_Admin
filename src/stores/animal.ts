@@ -1,9 +1,8 @@
-import { ref } from 'vue'
-import { defineStore } from 'pinia'
+import {ref} from 'vue'
+import {defineStore} from 'pinia'
+import type {Category} from "@/interfaces/Animal";
+
 export const useAnimalStore = defineStore('animal', () => {
-    const classfication = ref<any>()
-    const setClassfication = (value: any) => {
-        classfication.value = value
-    }
-    return { classfication, setClassfication }
+    const category = ref<Category[]>()
+    return {category}
 })

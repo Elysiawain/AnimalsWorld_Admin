@@ -65,8 +65,8 @@ const handleRouteChange = (titleName: string, index: number) => {
 const countStore = useCounterStore()
 //发送请求获取数量
 const getBadgeNum = async () => {
-  const res = await getBadgeNumApi()
-  countStore.setBadgeNum(res.data.data.count)
+  // const res = await getBadgeNumApi()
+  // countStore.setBadgeNum(res.data.data.count)
 }
 onMounted(() => getBadgeNum())
 </script>

@@ -3,16 +3,15 @@ import {ref} from 'vue'
 import AnimalItem from './AnimalItem.vue'
 import type {Animal, AnimalPre} from '@/interfaces/Animal'
 import {useAnimalStore} from '@/stores/animal'
-import {getAnimalByIdApi} from "@/api/Animals";
+import {getAnimalByIdApi, getAnimalClassificationApi} from "@/api/Animals";
 
-const props = defineProps({
-  title: String,
-  animalData: Object
-})
+const props = defineProps<{
+  title: string,
+  animalData?: AnimalPre[]
+}>()
 const limit = ref(4)
 const limitChange = () => {
-
-  limit.value = props.animalData?.length
+  limit.value = props.animalData!.length
 }
 
 //动物编辑抽屉
@@ -23,8 +22,22 @@ const drawer = ref<boolean>(false)
 const handleDrawerUpdate = (newDrawerStatus: any) => {
   drawer.value = newDrawerStatus
 }
+const categoryOptions = ref()
+const delay = ref(false)
 const initAnimal = async (animalData: AnimalPre) => {
+  if (delay.value) {
+    return
+  }
+  delay.value = true
   const res = await getAnimalByIdApi(animalData.id);
+  if (!animalStore.category) {
+    const res = await getAnimalClassificationApi()
+    animalStore.category = res.data.classificationList
+  }
+  categoryOptions.value = animalStore.category!.map(item => {
+    return item.name
+  })
+  delay.value = false
   addAnimalForm.value = res.data.animalList[0]
   // 清空
   drawer_title.value = '编辑动物'
@@ -36,8 +49,7 @@ const initAnimal = async (animalData: AnimalPre) => {
     initImg.name = img.uid
     initImg.url = img.url
   })
-
-
+  animalDrawer.value.open()
 }
 // 分类选择
 
@@ -62,9 +74,11 @@ const closeDrawer = () => {
   drawer.value = false
   addAnimalForm.value = {} as Animal
   addAnimalForm.value.imgURL = ''
-  addAnimalForm.value.imgList= [{uid: "", url: ""}]
+  addAnimalForm.value.imgList = [{uid: "", url: ""}]
   emit('closeEditDrawer')
 }
+
+const animalDrawer=ref()
 </script>
 
 <template>
@@ -80,17 +94,19 @@ const closeDrawer = () => {
     </h3>
     <el-divider/>
     <div class="detail-item">
-      <AnimalItem v-for="(item) in animalData?.slice(0, limit)" :key="item" :animal-data="item" :drawer="drawer"
+      <AnimalItem v-for="(item) in animalData?.slice(0, limit)" :key="item.id" :animal-data="item"
                   class="item" @update-drawer="handleDrawerUpdate" @init-animal="initAnimal"/>
 
       <!-- 编辑详情 -->
-      <Drawer :add-animal-forms="addAnimalForm" :drawer="drawer" :drawer_title="drawer_title"
-              :options="animalStore.classfication" @close-drawer="closeDrawer"></Drawer>
+      <view v-if="drawer">
+      </view>
     </div>
     <div v-if="limit === animalData?.length" style="margin-top: 20px; display: flex;justify-content: center;">
       已经没有了(●'◡'●)~
     </div>
   </div>
+  <Drawer :add-animal-forms="addAnimalForm" ref="animalDrawer" :drawer_title="drawer_title"
+          :options="categoryOptions" @close-drawer="closeDrawer"></Drawer>
 </template>
 
 <style lang="scss" scoped>

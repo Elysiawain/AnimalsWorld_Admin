@@ -9,6 +9,9 @@ export interface Admin {
     avatarURL: string
     message: string
     bgImg: string
+    auditCount: number,
+    addCount: number,
+    editCount: number,
 }
 
 /**
