@@ -2,6 +2,9 @@
 import request from "@/utils/Request"
 import type {Admin, adminList} from "@/interfaces/Admin";
 import type {AdminDetailData} from "@/interfaces/AdminDetail";
+import type {PageResult} from "@/types/PageResult";
+import type {User} from "@/interfaces/User";
+import type {Audit} from "@/interfaces/Audit";
 
 /**
  * 管理员登录
@@ -97,15 +100,20 @@ export const getAdminDetailApi = (adminID: string) => {
  * 管理员端获取用户得数据
  * @returns
  */
-export const getUserApi = (page: Number, pageSize: Number, userID: String | undefined, userName: String) => {
-    return request({
-        url: '/admin/user',
+export const getUserApi = (page: Number, pageSize: Number) => {
+    return request<any, PageResult<User>>({
+        url: '/admin/user?page=' + page + '&pageSize=' + pageSize,
         method: 'get',
-        data: {
-            page,
-            pageSize,
-            userID,
-            userName
+    })
+}
+
+
+export const getUserByUserIdApi = (userId: number) => {
+    return request<any, Result<User>>({
+        url: '/admin/userById',
+        method: 'get',
+        params: {
+            userId
         }
     })
 }
@@ -115,10 +123,10 @@ export const getUserApi = (page: Number, pageSize: Number, userID: String | unde
  * @param status
  * @returns
  */
-export const updaeUserStatusApi = (userID: string, status: number) => {
+export const updateUserStatusApi = (userID: string, status: number) => {
     return request({
         url: '/admin/user/status',
-        method: 'put',
+        method: 'POST',
         params: {
             userID,
             status
@@ -133,28 +141,29 @@ export const updaeUserStatusApi = (userID: string, status: number) => {
  * @returns
  */
 export const getAuditListApi = (page: Number, pageSize: Number, status: number) => {
-    return request({
-        url: `/admin/userUpload/${status}`,
+    return request<any, PageResult<Audit>>({
+        url: `/admin/userUpload`,
         method: 'get',
         params: {
             page,
             pageSize,
+            status
         }
     })
 }
 /**
  * 修改审核状态信息
- * @param userID
+ * @param auditID
  * @param status
  * @returns
  */
-export const updateAuditApi = (auditID: string, adminID: string, status: number) => {
-    return request({
-        url: `/admin/userUpload/${status}`,
+export const updateAuditApi = (auditID: string, status: number) => {
+    return request<any, Result<null>>({
+        url: `/admin/userUpload`,
         method: 'put',
         params: {
             auditID,
-            adminID,
+            status
         }
     })
 }

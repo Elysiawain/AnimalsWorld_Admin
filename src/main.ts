@@ -10,9 +10,11 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import App from './App.vue'
 import router from './router'
 
+import * as echarts from 'echarts'; //引入echarts
+
 const app = createApp(App)
 app.directive('focus', {
-    inserted: function (el) {
+    inserted: function (el:any) {
         el.focus();
     }
 })
@@ -24,4 +26,6 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(ElementPlus, {
     locale: zhCn,
 })
+
+app.config.globalProperties.$echarts = echarts;//全局使用
 app.mount('#app')

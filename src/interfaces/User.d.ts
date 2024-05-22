@@ -1,5 +1,5 @@
 export interface User{
-    uesrID:string;
+    userID:string;
     userName:string;
     avatarURL:string;
     email:string;
@@ -7,5 +7,5 @@ export interface User{
     individualResume:string;
     createTime:Date;
     status:Number;
-    contribution:Number;
+    uploadCount:Number;
 }
