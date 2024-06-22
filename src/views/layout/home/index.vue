@@ -4,12 +4,6 @@ import * as echarts from 'echarts';
 import {getAnimalClassificationApi, getAnimalListApi} from "@/api/Animals";
 import {useAnimalStore} from "@/stores/animal";
 
-onMounted(() => {
-  initChart_1()
-  initChart_2()
-  initChart_3()
-  initChart_4()
-})
 
 const initChart_1 = () => {
   const chartDom = document.querySelector('#charts-1');
@@ -166,6 +160,13 @@ const initChart_4 = async () => {
   };
   option && myChart.setOption(option);
 }
+
+onMounted(() => {
+  initChart_1()
+  initChart_2()
+  initChart_3()
+  initChart_4()
+})
 </script>
 
 <template>

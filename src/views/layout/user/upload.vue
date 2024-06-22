@@ -106,14 +106,14 @@ const viewDetail = async (row: Audit) => {
 
       <el-table-column align="center" label="操作">
         <template #default="scope">
-          <el-button plain size="small" type='success'
+          <el-button plain size="small" type='success' v-if="scope.row.status !== 1"
                      @click.stop="handleEdit(scope.$index, scope.row, 1)">通过
             <el-icon>
               <DocumentChecked/>
             </el-icon>
           </el-button>
           <el-button plain size="small" type='danger'
-                     @click.stop="handleEdit(scope.$index, scope.row, 0)">不通过
+                     @click.stop="handleEdit(scope.$index, scope.row, 0)">{{ scope.row.status===1?'撤回':'不通过' }}
             <el-icon>
               <CloseBold/>
             </el-icon>
@@ -137,7 +137,7 @@ const viewDetail = async (row: Audit) => {
                     <el-button plain type="success" @click="handleEdit(-1, currentRow, 1)">
                         通过
                     </el-button>
-                    <el-button plain type="danger" @click="handleEdit(-1, currentRow, 0)">不通过</el-button>
+                    <el-button  plain type="danger" @click="handleEdit(-1, currentRow, 0)">不通过</el-button>
                 </span>
       </template>
     </el-dialog>
