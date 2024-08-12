@@ -1,25 +1,21 @@
 <script lang="ts" setup>
 import {onMounted, ref, watch} from 'vue'
 import {getUserByUserIdApi} from '@/api/Admin'
-import type {Animal} from "@/interfaces/Animal";
+import type {AuditAnimal} from "@/interfaces/Animal";
 import type {User} from "@/interfaces/User";
 
 const props = defineProps<{
-  animalsData: Animal,
-  uploadUser: string,
-  uploadTime: string,
+  animalsData: AuditAnimal
 }>()
-watch(props,() =>{
+watch(props, () => {
 
 })
-const uploadUser = ref(props.uploadUser)
 const user = ref<User>()
 let imgUrl: [] = []
-props?.animalsData?.imgURL.forEach((item: any) => imgUrl.push(item.url))
+// props?.animalsData?.imgURL.forEach((item: any) => imgUrl.push(item.url))
 const getUploadUser = async () => {
-  const res = await getUserByUserIdApi(props.uploadUser)
+  const res = await getUserByUserIdApi(props.animalsData.creator)
   user.value = res.data
-
 }
 onMounted(() => getUploadUser())
 watch(props, () => {
@@ -31,11 +27,11 @@ watch(props, () => {
   <div class="container">
     <div class="uploader"><span>上传者：</span><img :src="user?.avatarURL" alt="点击查看详情">{{ user?.userName }}</div>
     <div class="uploader"><span>用户ID：</span>{{ user?.userID }}</div>
-    <div><span>上传时间：</span>{{ uploadTime }}</div>
+    <div><span>上传时间：</span>{{ animalsData?.createTime }}</div>
     <div><span>动物名：</span>{{ animalsData?.name }}</div>
     <div class="picture"><span>动物图片预览：</span>
       <div class="img-list">
-        <el-image v-for="img in animalsData?.imgList.toString().split(',')" :key="img.uid" :max-scale="7" :min-scale="0.2"
+        <el-image v-for="img in animalsData?.imgList.toString().split(',')" :key="img" :max-scale="7" :min-scale="0.2"
                   :preview-src-list="animalsData?.imgList.toString().split(',')"
                   :src="img" :zoom-rate="1.2" fit="scale-down"/>
       </div>
@@ -46,9 +42,9 @@ watch(props, () => {
       <div><span>分类：</span>{{ animalsData?.classification }}</div>
       <div><span>分布：</span>{{ animalsData?.distribution }}</div>
       <div><span>保护级别：</span>{{ animalsData?.protectionLevel }}</div>
-      <div><span>饮食：</span>{{ animalsData?.diet }}</div>
-      <div><span>繁殖方式：</span>{{ animalsData?.breeding }}</div>
-      <div><span>天敌：</span>{{ animalsData?.predator }}</div>
+      <div><span>饮食：</span>{{ animalsData?.diet || "无" }}</div>
+      <div><span>繁殖方式：</span>{{ animalsData?.breeding || "无" }}</div>
+      <div><span>天敌：</span>{{ animalsData?.predator || "无" }}</div>
     </div>
   </div>
 </template>

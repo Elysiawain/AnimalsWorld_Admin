@@ -100,9 +100,9 @@ export const getAdminDetailApi = (adminID: string) => {
  * 管理员端获取用户得数据
  * @returns
  */
-export const getUserApi = (page: Number, pageSize: Number) => {
-    return request<any, PageResult<User>>({
-        url: '/admin/user?page=' + page + '&pageSize=' + pageSize,
+export const getUserApi = (page: number, pageSize: number, keyword?: string) => {
+    return request<any, Result<PageResult<User>>>({
+        url: '/admin/user?page=' + page + '&pageSize=' + pageSize + '&&keyword=' + keyword,
         method: 'get',
     })
 }
@@ -135,20 +135,12 @@ export const updateUserStatusApi = (userID: string, status: number) => {
 }
 /**
  * 获取审核数据（1：已审核，0：待审核）
- * @param page
- * @param pageSize
- * @param status
  * @returns
  */
-export const getAuditListApi = (page: Number, pageSize: Number, status: number) => {
-    return request<any, PageResult<Audit>>({
-        url: `/admin/userUpload`,
+export const getAuditListApi = () => {
+    return request<any, Result<PageResult<Audit>>>({
+        url: `/audit/animalList`,
         method: 'get',
-        params: {
-            page,
-            pageSize,
-            status
-        }
     })
 }
 /**
@@ -157,12 +149,12 @@ export const getAuditListApi = (page: Number, pageSize: Number, status: number) 
  * @param status
  * @returns
  */
-export const updateAuditApi = (auditID: string, status: number) => {
+export const updateAuditApi = (auditID: number, status: number) => {
     return request<any, Result<null>>({
-        url: `/admin/userUpload`,
-        method: 'put',
+        url: `/audit/update`,
+        method: 'POST',
         params: {
-            auditID,
+            id: auditID,
             status
         }
     })

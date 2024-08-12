@@ -36,6 +36,11 @@ request.interceptors.response.use(response => {
 }, error => {
     // 超出 2xx 范围的状态码都会触发该函数。
     // 对响应错误做点什么
+    if (error.response.status ===401) {
+        // 登录过期跳转到登录页
+        window.location.href = '/animals/login'
+        return ElMessage.error(error.data.message || '服务异常，请稍后重试')
+    }
     ElMessage.error('服务异常，请稍后重试')
     return Promise.reject(error);
 });

@@ -71,3 +71,45 @@ export interface Category {
 export type CategoryResponse = {
     classificationList: Category[];
 }
+export type AuditAnimal={
+    // 唯一id
+     id:number;
+    // 关联的审核表id
+     auditId:number;
+    // 审核通过后的主数据id
+    animalId:number;
+    // 动物名称
+     name:string;
+    // 主图地址
+     imgURL:string;
+    // 副图地址，以逗号分隔
+     imgList:string;
+    // 描述
+     description:string;
+    // 分类
+     classification:string;
+    // 分布
+     distribution:string;
+    // 保护级别
+     protectionLevel:string;
+    // 饮食习性
+     diet:string;
+    // 繁殖
+     breeding:string;
+    // 生活习性
+     lifestyle:string;
+    // 天敌
+     predator:string;
+    //  创建者
+    creator:number;
+    // 更新者
+     updater:number;
+    // 状态0——待审核；1——通过；2——不通过：3——用户取消
+     status:number;
+    // 标签
+    tags:string;
+    // 创建时间
+     createTime:string;
+    // 更新时间
+     updateTime:string;
+}

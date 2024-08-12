@@ -19,7 +19,7 @@ const getAdminDetail = async () => {
   try {
     const {data} = await getAdminDetailCenterApi()
     adminDetail.value = data
-    newAdminInfo.value =data
+    newAdminInfo.value = data
     /*        auditAnimalList.value = await getAnimalList(adminDetail.value.audit.toString()) // 获取审核动物列表
             addAnimalList.value = await getAnimalList(adminDetail.value.addCount.toString()) // 获取新增动物列表
             editAnimalList.value = await getAnimalList(adminDetail.value.editCount.toString()) // 获取修改动物列表*/
@@ -92,7 +92,7 @@ const confirm = async () => {
   drawer.value = false
   // 发送保存请求
   const res = await updateAdminApi(newAdminInfo.value.name, newAdminInfo.value.avatarURL, newAdminInfo.value.message, '')
-  if (res.code.toString()!=='1') {
+  if (res.code.toString() !== '1') {
     ElMessage.error(res.message || '保存失败')
     return
   }
@@ -124,7 +124,7 @@ const confirmBgc = async () => {
   // 发送保存请求
   const res = await updateAdminApi('', '', '', newAdminInfo.value.bgImg)
   editBgc.value = false//关闭抽屉
-  if (res.code.toString()!=='1') {
+  if (res.code.toString() !== '1') {
     ElMessage.error(res.message || '保存失败')
     return
   }
@@ -158,7 +158,7 @@ const closeEditDrawer = async () => {
   <div v-loading="loading" class="container">
     <div class="content">
       <div :style="{ 'backgroundImage': 'url(' + adminDetail?.bgImg+ ')' }" class="info">
-        <div class="edit-bgcImg" @click="editBgcImg">修改背景</div>
+<!--        <div class="edit-bgcImg" @click="editBgcImg">修改背景</div>-->
         <div class="admin-detail">
           <div class="info-avatar"><img :src="adminDetail?.avatarURL" alt="" width="100px"></div>
           <div class="info-name">{{ adminDetail?.name }}</div>
@@ -284,7 +284,7 @@ const closeEditDrawer = async () => {
         </el-drawer>
 
 
-        <!-- 修改背景 -->
+<!--        &lt;!&ndash; 修改背景 &ndash;&gt;
         <el-drawer v-model="editBgc" :before-close="beforeClose" :direction="direction">
           <template #header>
             <div style="font-size: 20px;">
@@ -311,7 +311,7 @@ const closeEditDrawer = async () => {
               <el-button type="primary" @click="confirmBgc">保存修改</el-button>
             </div>
           </template>
-        </el-drawer>
+        </el-drawer>-->
 
       </div>
     </div>
